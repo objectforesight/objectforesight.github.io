@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EgoMAN - Video Comparisons</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+    <link rel="stylesheet" href="./static/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./static/css/index.css">
+
+    <style>
+        .video-comparison {
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .input-image-container {
+            position: sticky;
+            top: 2rem;
+        }
+
+        .input-image {
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-image-label {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .videos-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .video-item {
+            background: #fff;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .video-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .video-item video {
+            width: 100%;
+            border-radius: 6px;
+            background: #000;
+        }
+
+        .video-label {
+            margin-top: 0.75rem;
+            font-size: 1rem;
+            color: #333;
+            text-align: center;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        @media screen and (max-width: 768px) {
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .input-image-container {
+                position: relative;
+                top: 0;
+            }
+
+            .videos-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <section class="hero">
+        <div class="hero-body">
+            <div class="container is-max-desktop">
+                <h1 class="title is-1 has-text-centered">
+                    EgoMAN Video Comparisons
+                </h1>
+                <h2 class="subtitle has-text-centered">
+                    Input Images with Multiple Trajectory Predictions
+                </h2>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container is-max-desktop">
+            <div id="comparisons-container">
+                <!-- Comparisons will be loaded here by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Parse video filenames to extract information
+        function parseVideoFilename(filename) {
+            // Format: {image_name}.jpg_{intention_description}_{number}.mp4
+            const parts = filename.split('.jpg_');
+            if (parts.length !== 2) {
+                return null;
+            }
+
+            const imageName = parts[0] + '.jpg';
+            const remaining = parts[1].replace('.mp4', '');
+
+            // Split by underscore to get intention and number
+            const lastUnderscore = remaining.lastIndexOf('_');
+            const number = remaining.substring(lastUnderscore + 1);
+            const intention = remaining.substring(0, lastUnderscore);
+
+            // Clean up intention text
+            const intentionText = intention.replace(/-/g, ' ');
+
+            return {
+                imageName: imageName,
+                intention: intentionText,
+                number: parseInt(number),
+                filename: filename
+            };
+        }
+
+        // Group videos by image
+        function groupVideosByImage(videos) {
+            const groups = {};
+
+            videos.forEach(video => {
+                const parsed = parseVideoFilename(video);
+                if (!parsed) return;
+
+                if (!groups[parsed.imageName]) {
+                    groups[parsed.imageName] = {
+                        imageName: parsed.imageName,
+                        intention: parsed.intention,
+                        videos: []
+                    };
+                }
+
+                groups[parsed.imageName].videos.push({
+                    filename: video,
+                    number: parsed.number
+                });
+            });
+
+            // Sort videos within each group by number
+            Object.values(groups).forEach(group => {
+                group.videos.sort((a, b) => a.number - b.number);
+            });
+
+            return groups;
+        }
+
+        // Create HTML for a comparison group
+        function createComparisonHTML(group) {
+            const container = document.createElement('div');
+            container.className = 'video-comparison';
+
+            const grid = document.createElement('div');
+            grid.className = 'comparison-grid';
+
+            // Left side: Input image
+            const imageContainer = document.createElement('div');
+            imageContainer.className = 'input-image-container';
+            imageContainer.innerHTML = `
+        <img src="./static/images/${group.imageName}"
+             class="input-image"
+             alt="Input frame"
+             onerror="this.style.display='none'">
+        <div class="input-image-label">Input Frame</div>
+      `;
+
+            // Right side: Videos only (no intention text block)
+            const contentContainer = document.createElement('div');
+
+            const videosContainer = document.createElement('div');
+            videosContainer.className = 'videos-container';
+
+            group.videos.forEach(video => {
+                const videoItem = document.createElement('div');
+                videoItem.className = 'video-item';
+                videoItem.innerHTML = `
+          <video controls loop preload="metadata" muted>
+            <source src="./static/duo_select/${video.filename}" type="video/mp4">
+          </video>
+          <div class="video-label">
+            ${capitalizeFirst(group.intention)}
+          </div>
+        `;
+
+                // Add hover to play
+                const videoElement = videoItem.querySelector('video');
+                let isPlaying = false;
+
+                videoElement.addEventListener('mouseenter', function () {
+                    const playPromise = this.play();
+                    if (playPromise !== undefined) {
+                        playPromise.then(() => {
+                            isPlaying = true;
+                        }).catch(() => { });
+                    }
+                });
+
+                videoElement.addEventListener('mouseleave', function () {
+                    if (isPlaying) {
+                        this.pause();
+                        this.currentTime = 0;
+                        isPlaying = false;
+                    }
+                });
+
+                videosContainer.appendChild(videoItem);
+            });
+
+            contentContainer.appendChild(videosContainer);
+
+            grid.appendChild(imageContainer);
+            grid.appendChild(contentContainer);
+            container.appendChild(grid);
+
+            return container;
+        }
+
+        function capitalizeFirst(str) {
+            if (!str) return '';
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        // Load and display comparisons
+        async function loadComparisons() {
+            // List of videos in duo_select folder
+            const videos = [
+                '20230731_s1_angela_mclean_act3_nwakzz_videostamp_0151_923.89_928.88_timestamp_0.0_1.5.jpg_poke-food-on-plate-with-fork-with-left-hand_6.mp4',
+                '20230731_s1_angela_mclean_act3_nwakzz_videostamp_0151_923.89_928.88_timestamp_0.0_1.5.jpg_retrieve-fork-on-stovetop-with-right-hand_0.mp4',
+                '20230731_s1_angela_mclean_act3_nwakzz_videostamp_0151_923.89_928.88_timestamp_0.0_1.5.jpg_open-oven-door-with-right-hand_6.mp4',
+                '20230731_s1_angela_mclean_act3_nwakzz_videostamp_0151_923.89_928.88_timestamp_0.0_1.5.jpg_turn-on-stove-with-left-hand_2.mp4'
+            ];
+
+            const groups = groupVideosByImage(videos);
+            const container = document.getElementById('comparisons-container');
+
+            Object.values(groups).forEach(group => {
+                const comparisonElement = createComparisonHTML(group);
+                container.appendChild(comparisonElement);
+            });
+
+            console.log(`Loaded ${Object.keys(groups).length} comparison groups`);
+        }
+
+        // Load comparisons when page loads
+        document.addEventListener('DOMContentLoaded', loadComparisons);
+    </script>
+</body>
+
+</html>

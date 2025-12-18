@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="EgoMAN: Learning 3D Hand Trajectory Prediction from Egocentric Videos">
+    <meta name="keywords"
+        content="3D hand trajectory prediction, hand-object interaction, egocentric motion forecasting, VLM reasoning">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EgoMAN: Flowing from Reasoning to Motion</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+    <link rel="stylesheet" href="./static/css/bulma.min.css">
+    <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+    <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+    <link rel="stylesheet" href="./static/css/index.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="./static/js/bulma-carousel.min.js"></script>
+    <script src="./static/js/bulma-slider.min.js"></script>
+    <script src="./static/js/video_metadata.js"></script>
+    <script src="./static/js/index.js"></script>
+    <script>
+        // Hide teaser video section if video doesn't exist
+        document.addEventListener('DOMContentLoaded', function () {
+            const teaserVideo = document.getElementById('teaser');
+            if (teaserVideo) {
+                teaserVideo.addEventListener('error', function () {
+                    const teaserSection = teaserVideo.closest('.hero.teaser');
+                    if (teaserSection) {
+                        teaserSection.style.display = 'none';
+                    }
+                });
+            }
+        });
+    </script>
+</head>
+
+<body>
+
+    <section class="hero">
+        <div class="hero-body">
+            <div class="container is-max-desktop">
+                <div class="columns is-centered">
+                    <div class="column has-text-centered">
+                        <h1 class="title is-1 publication-title">Flowing from Reasoning to Motion: Learning 3D Hand
+                            Trajectory Prediction from Egocentric Human Interaction Videos</h1>
+                        <div class="is-size-5 publication-authors">
+                            <span class="author-block">
+                                <a href="https://www.mingfeichen.com/">Mingfei Chen</a><sup>1,2</sup>,</span>
+                            <span class="author-block">
+                                <a href="https://yifanwang.cc/">Yifan Wang</a><sup>1</sup>,</span>
+                            <span class="author-block">
+                                <a href="https://sites.google.com/view/zhengqinli">Zhengqin Li</a><sup>1</sup>,</span>
+                            <span class="author-block">
+                                <a href="https://homangab.github.io/">Homanga Bharadhwaj</a><sup>1</sup>,</span>
+                            <span class="author-block">
+                                <a href="https://terencecyj.github.io/">Yujin Chen</a><sup>1</sup>,</span>
+                            <span class="author-block">
+                                <a href="https://www.linkedin.com/in/chuanqin/">Chuan Qin</a><sup>1</sup>,</span>
+                            <span class="author-block">
+                                <a href="https://ziyikou.me/">Ziyi Kou</a><sup>1</sup>,</span>
+                            <span class="author-block">
+                                <a href="https://scholar.google.com/citations?user=ddFnVyYAAAAJ&hl=en">Yuan Tian</a><sup>1</sup>,</span>
+                            <span class="author-block">
+                                <a href="https://www.ericwhitmire.com/">Eric Whitmire</a><sup>1</sup>,</span>
+                            <span class="author-block">
+                                <a href="https://rsodhi.com/">Rajinder Sodhi</a><sup>1</sup>,</span>
+                            <span class="author-block">
+                                <a href="https://www.hbenko.com/">Hrvoje Benko</a><sup>1</sup>,</span>
+                            <span class="author-block">
+                                <a href="https://faculty.washington.edu/shlizee/NW/index.html">Eli Shlizerman</a><sup>2</sup>,</span>
+                            <span class="author-block">
+                                <a href="https://openreview.net/profile?id=~Yue_Liu34">Yue Liu</a><sup>1</sup></span>
+                        </div>
+
+                        <div class="is-size-5 publication-authors">
+                            <span class="author-block"><sup>1</sup>Meta</span>
+                            <span class="author-block"><sup>2</sup>University of Washington</span>
+                        </div>
+
+                        <div class="column has-text-centered">
+                            <div class="publication-links">
+                                <span class="link-block">
+                                    <a href="#" class="external-link button is-normal is-rounded is-dark">
+                                        <span class="icon">
+                                            <i class="ai ai-arxiv"></i>
+                                        </span>
+                                        <span>arXiv</span>
+                                    </a>
+                                </span>
+                                <span class="link-block">
+                                    <a href="" class="external-link button is-normal is-rounded is-dark">
+                                        <span class="icon">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </span>
+                                        <span>Paper</span>
+                                    </a>
+                                </span>
+                                <span class="link-block">
+                                    <a href="#" class="external-link button is-normal is-rounded is-dark">
+                                        <span class="icon">
+                                            <i class="fab fa-github"></i>
+                                        </span>
+                                        <span>Code</span>
+                                    </a>
+                                </span>
+                                <span class="link-block">
+                                    <a href="#" class="external-link button is-normal is-rounded is-dark">
+                                        <span class="icon">
+                                            <i class="far fa-images"></i>
+                                        </span>
+                                        <span>Data</span>
+                                    </a>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <section class="hero teaser">
+        <div class="container is-max-desktop">
+            <div class="hero-body">
+                <img src="./static/images/teaser_final_final.png" alt="EgoMAN Teaser"
+                    style="width: 100%; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" />
+                    <p class="has-text-centered" style="margin-top: 0.5rem;">
+                        <em>
+                            We introduce the <b>EgoMAN dataset</b> (top), a large-scale egocentric dataset for stage-aware 3D hand trajectory prediction, containing 219K 6-DoF trajectories and 3M structured QA pairs for semantic, spatial, and motion reasoning. At inference, the <b>EgoMAN model</b> (bottom) takes an image, past hand motion, and an intent query, performs stage-aware reasoning to predict intent-specific waypoints, and generates distinct 6-DoF hand trajectories for different intents in the same scene.
+                            </em>
+                            
+                    </p>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="section">
+        <div class="container is-max-desktop">
+          <div class="content has-text-centered">
+      
+            <video 
+              autoplay 
+              muted 
+              loop 
+              playsinline 
+              preload="metadata"
+              controls
+              style="width: 100%; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+              <source src="static/videos/egoman_suppl_video.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+            </video>
+      
+            <p class="has-text-centered" style="margin-top: 0.5rem;">
+                <em>Introduction video of EgoMAN with qualitative results.</em>
+            </p>
+      
+          </div>
+        </div>
+      </section>
+      
+
+
+      
+
+    <section class="section">
+        <div class="container is-max-desktop">
+            <div class="columns is-centered has-text-centered">
+                <div class="column is-four-fifths">
+                    <h2 class="title is-3">Abstract</h2>
+                    <div class="content has-text-justified">
+                        <p>
+                            Prior works on 3D hand trajectory prediction are constrained by datasets that decouple
+                            motion from semantic supervision and by models that weakly link reasoning and action. To
+                            address these, we first present the <strong>EgoMAN dataset</strong>, a large-scale
+                            egocentric dataset for interaction stage–aware 3D hand trajectory prediction with 219K 6DoF
+                            trajectories and 3M structured QA pairs for semantic, spatial, and motion reasoning.
+                        </p>
+                        <p>
+                            We then introduce the <strong>EgoMAN model</strong>, a reasoning-to-motion framework that
+                            links vision–language reasoning and motion generation via a trajectory-token interface.
+                            Trained progressively to align reasoning with motion dynamics, our approach yields accurate
+                            and stage-aware trajectories with generalization across real-world scenes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+
+
+    <!-- EgoMAN Section -->
+    <section class="section" style="background-color: #f8f9fa;">
+        <div class="container is-max-desktop">
+            <h2 class="title is-3 has-text-centered" style="color: #5a67d8;">
+                <span class="icon"><i class="fas fa-video"></i></span>
+                Trajectory Forecasting on EgoMAN Unseen <br> (Dynamic Ego-Video Overlay)
+            </h2>
+
+            <div class="filters has-text-centered"
+                style="margin-bottom: 2rem; background: white; padding: 1.5rem; border-radius: 10px; border: 3px solid #5a67d8;">
+                <div class="field is-grouped is-grouped-multiline is-grouped-centered">
+                    <div class="control">
+                        <label class="label">Hand:</label>
+                        <div class="select">
+                            <select id="egoman-filter-hand">
+                                <option value="all">All</option>
+                                <option value="left">Left</option>
+                                <option value="right">Right</option>
+                                <option value="both">Both</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="control">
+                        <label class="label">Action:</label>
+                        <div class="select">
+                            <select id="egoman-filter-verb">
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="control">
+                        <label class="label">Object:</label>
+                        <div class="select">
+                            <select id="egoman-filter-object">
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="control">
+                        <label class="label">Scene:</label>
+                        <div class="select">
+                            <select id="egoman-filter-scene">
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="control">
+                        <button class="button is-info" onclick="resetEgomanFilters()">Reset Filters</button>
+                    </div>
+                </div>
+
+                <div class="has-text-centered" style="margin-top: 1rem;">
+                    <p id="egoman-video-count" class="has-text-weight-bold"></p>
+                </div>
+            </div>
+
+            <div class="video-gallery">
+                <div id="egoman-video-container" class="columns is-multiline is-centered">
+                    <!-- EgoMAN videos will be loaded here by JavaScript -->
+                </div>
+            </div>
+
+            <div class="pagination-controls has-text-centered" style="margin-top: 2rem;">
+                <button class="button is-info" onclick="previousEgomanPage()" id="egoman-prev-btn">
+                    <span class="icon"><i class="fas fa-chevron-left"></i></span>
+                    <span>Previous</span>
+                </button>
+                <span id="egoman-page-info" style="margin: 0 1rem;"></span>
+                <button class="button is-info" onclick="nextEgomanPage()" id="egoman-next-btn">
+                    <span>Next</span>
+                    <span class="icon"><i class="fas fa-chevron-right"></i></span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOT3D Section -->
+    <section class="section" style="background-color: #fafbfc;">
+        <div class="container is-max-desktop">
+            <h2 class="title is-3 has-text-centered" style="color: #6c757d;">
+                <span class="icon"><i class="fas fa-database"></i></span>
+                Zero-Shot Eval on HOT3D Out-Of-Domain <br> (Dynamic Ego-Video Overlay)
+            </h2>
+
+            <div class="filters has-text-centered"
+                style="margin-bottom: 2rem; background: white; padding: 1.5rem; border-radius: 10px; border: 3px solid #6c757d;">
+                <div class="field is-grouped is-grouped-multiline is-grouped-centered">
+                    <div class="control">
+                        <label class="label">Hand:</label>
+                        <div class="select">
+                            <select id="hot3d-filter-hand">
+                                <option value="all">All</option>
+                                <option value="left">Left</option>
+                                <option value="right">Right</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="control">
+                        <label class="label">Object:</label>
+                        <div class="select">
+                            <select id="hot3d-filter-object">
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="control">
+                        <label class="label">P-ID:</label>
+                        <div class="select">
+                            <select id="hot3d-filter-pid">
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="control">
+                        <button class="button" onclick="resetHot3dFilters()">Reset Filters</button>
+                    </div>
+                </div>
+
+                <div class="has-text-centered" style="margin-top: 1rem;">
+                    <p id="hot3d-video-count" class="has-text-weight-bold"></p>
+                </div>
+            </div>
+
+            <div class="video-gallery">
+                <div id="hot3d-video-container" class="columns is-multiline is-centered">
+                    <!-- HOT3D videos will be loaded here by JavaScript -->
+                </div>
+            </div>
+
+            <div class="pagination-controls has-text-centered" style="margin-top: 2rem;">
+                <button class="button is-danger" onclick="previousHot3dPage()" id="hot3d-prev-btn">
+                    <span class="icon"><i class="fas fa-chevron-left"></i></span>
+                    <span>Previous</span>
+                </button>
+                <span id="hot3d-page-info" style="margin: 0 1rem;"></span>
+                <button class="button is-danger" onclick="nextHot3dPage()" id="hot3d-next-btn">
+                    <span>Next</span>
+                    <span class="icon"><i class="fas fa-chevron-right"></i></span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container is-max-desktop">
+            <h2 class="title is-3 has-text-centered">Trajectory Prediction with Diverse Intention Text</h2>
+            <p class="subtitle has-text-centered" style="margin-top: 1rem;">
+                Given an input frame and diverse intention texts, our model generates multiple diverse trajectory
+                predictions
+            </p>
+
+            <div id="comparisons-container" style="margin-top: 3rem;">
+                <!-- Comparisons will be loaded here by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+
+    <section class="section" id="BibTeX">
+        <div class="container is-max-desktop content">
+            <h2 class="title">BibTeX</h2>
+            <!-- <pre><code>@article{chen2025egoman,
+  title={Flowing from Reasoning to Motion: Learning 3D Hand Trajectory Prediction from Egocentric Human Interaction Videos},
+  author={Chen, Mingfei and Liu, Yue and Wang, Yifan and Li, Zhengqin and Bharadhwaj, Homanga and Chen, Yujin and Qin, Chuan and Kou, Ziyi and Tian, Yuan and Whitmire, Eric and Sodhi, Rajinder and Shlizerman, Eli and Benko, Hrvoje},
+  journal={CVPR},
+  year={2026}
+}</code></pre> -->
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="content has-text-centered">
+                <a class="icon-link" href="#">
+                    <i class="fas fa-file-pdf"></i>
+                </a>
+                <a class="icon-link" href="#" class="external-link" disabled>
+                    <i class="fab fa-github"></i>
+                </a>
+            </div>
+            <div class="columns is-centered">
+                <div class="column is-8">
+                    <div class="content">
+                        <p>
+                            This website is adapted from <a
+                                href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>, which is licensed under
+                            a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons
+                                Attribution-ShareAlike 4.0 International License</a>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>
