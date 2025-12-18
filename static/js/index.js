@@ -2,13 +2,13 @@
 let egomanAllVideos = [];
 let egomanFilteredVideos = [];
 let egomanCurrentPage = 1;
-const egomanVideosPerPage = 12;
+const egomanVideosPerPage = 6;
 
 // HOT3D Gallery State
 let hot3dAllVideos = [];
 let hot3dFilteredVideos = [];
 let hot3dCurrentPage = 1;
-const hot3dVideosPerPage = 12;
+const hot3dVideosPerPage = 6;
 
 // Video base path
 const VIDEO_BASE_PATH = './static/trajectory_videos_pred_vs_gt/';
@@ -20,9 +20,6 @@ document.addEventListener('DOMContentLoaded', function () {
         // Separate videos by dataset
         egomanAllVideos = VIDEO_METADATA.filter(v => v.dataset === 'egoman');
         hot3dAllVideos = VIDEO_METADATA.filter(v => v.dataset === 'hot3d');
-
-        egomanFilteredVideos = [...egomanAllVideos];
-        hot3dFilteredVideos = [...hot3dAllVideos];
 
         // Populate filter dropdowns
         populateEgomanFilters();
@@ -39,9 +36,9 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('hot3d-filter-object').addEventListener('change', applyHot3dFilters);
         document.getElementById('hot3d-filter-pid').addEventListener('change', applyHot3dFilters);
 
-        // Display initial videos
-        displayEgomanVideos();
-        displayHot3dVideos();
+        // Apply initial filters (which will also shuffle and display)
+        applyEgomanFilters();
+        applyHot3dFilters();
 
         console.log(`Loaded ${egomanAllVideos.length} EgoMAN videos and ${hot3dAllVideos.length} HOT3D videos`);
     } else {
@@ -96,13 +93,16 @@ function applyEgomanFilters() {
     const objectFilter = document.getElementById('egoman-filter-object').value;
     const sceneFilter = document.getElementById('egoman-filter-scene').value;
 
-    egomanFilteredVideos = egomanAllVideos.filter(video => {
+    let filtered = egomanAllVideos.filter(video => {
         if (handFilter !== 'all' && video.hand !== handFilter) return false;
         if (verbFilter !== 'all' && video.verb !== verbFilter) return false;
         if (objectFilter !== 'all' && video.object !== objectFilter) return false;
         if (sceneFilter !== 'all' && video.scene !== sceneFilter) return false;
         return true;
     });
+
+    // Apply diversity shuffling to ensure varied content on each page
+    egomanFilteredVideos = diversityShuffle(filtered);
 
     egomanCurrentPage = 1;
     displayEgomanVideos();
@@ -212,12 +212,15 @@ function applyHot3dFilters() {
     const objectFilter = document.getElementById('hot3d-filter-object').value;
     const pidFilter = document.getElementById('hot3d-filter-pid').value;
 
-    hot3dFilteredVideos = hot3dAllVideos.filter(video => {
+    let filtered = hot3dAllVideos.filter(video => {
         if (handFilter !== 'all' && video.hand !== handFilter) return false;
         if (objectFilter !== 'all' && video.object !== objectFilter) return false;
         if (pidFilter !== 'all' && video.p_id !== pidFilter) return false;
         return true;
     });
+
+    // Apply diversity shuffling to ensure varied content on each page
+    hot3dFilteredVideos = diversityShuffle(filtered);
 
     hot3dCurrentPage = 1;
     displayHot3dVideos();
@@ -289,6 +292,180 @@ function scrollToHot3dSection() {
     if (section) {
         section.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+}
+
+// ===== Diversity Shuffling Functions =====
+
+/**
+ * Shuffle videos to maximize diversity across categories
+ * Prioritizes Scene diversity first, then distributes other attributes
+ * Featured videos are always shown first
+ */
+function diversityShuffle(videos) {
+    if (videos.length === 0) return videos;
+
+    // Define featured videos for the first page (in desired order)
+    const featuredDescriptions = [
+        "close the laptop",
+        "turn on tap",
+        "open cabinet",
+        "pick up socks from floor",
+        "stir milk tea",
+        "reposition bowl in microwave"
+    ];
+
+    // Separate featured videos in the specified order
+    const featuredVideos = [];
+    featuredDescriptions.forEach(desc => {
+        const video = videos.find(v => v.description === desc);
+        if (video) {
+            featuredVideos.push(video);
+        }
+    });
+
+    // Remove featured videos from the pool
+    const remainingVideos = videos.filter(v => !featuredDescriptions.includes(v.description));
+
+    // Shuffle remaining videos with scene-first diversity
+    const shuffledRemaining = shuffleWithSceneDiversity(remainingVideos);
+
+    // Concatenate: featured videos first, then shuffled remaining
+    return [...featuredVideos, ...shuffledRemaining];
+}
+
+/**
+ * Helper function to shuffle videos with scene-first diversity
+ * Ensures each page of 6 videos has maximum scene variety
+ */
+function shuffleWithSceneDiversity(videos) {
+    if (videos.length === 0) return videos;
+
+    const VIDEOS_PER_PAGE = 6;
+
+    // Group videos by scene
+    const sceneGroups = {};
+    videos.forEach(video => {
+        const scene = video.scene || 'unknown';
+        if (!sceneGroups[scene]) {
+            sceneGroups[scene] = [];
+        }
+        sceneGroups[scene].push(video);
+    });
+
+    // Get all scene names and shuffle them for randomization
+    const sceneNames = Object.keys(sceneGroups);
+    const shuffledScenes = fisherYatesShuffle(sceneNames);
+
+    // Within each scene group, shuffle by other attributes (verb, object, hand)
+    shuffledScenes.forEach(scene => {
+        sceneGroups[scene] = shuffleBySecondaryAttributes(sceneGroups[scene]);
+    });
+
+    // Distribute videos page by page to ensure each page has diverse scenes
+    const shuffled = [];
+    const totalPages = Math.ceil(videos.length / VIDEOS_PER_PAGE);
+
+    for (let page = 0; page < totalPages; page++) {
+        const pageVideos = [];
+        let sceneIndex = 0;
+
+        // Try to fill this page with videos from different scenes (round-robin)
+        while (pageVideos.length < VIDEOS_PER_PAGE) {
+            let addedInThisRound = false;
+
+            // Go through all scenes and try to pick one video from each
+            for (let i = 0; i < shuffledScenes.length && pageVideos.length < VIDEOS_PER_PAGE; i++) {
+                const scene = shuffledScenes[sceneIndex % shuffledScenes.length];
+                const sceneVideos = sceneGroups[scene];
+
+                if (sceneVideos && sceneVideos.length > 0) {
+                    pageVideos.push(sceneVideos.shift());
+                    addedInThisRound = true;
+                }
+
+                sceneIndex++;
+            }
+
+            // If no videos were added, we've exhausted all scenes
+            if (!addedInThisRound) break;
+        }
+
+        // Add this page's videos to the final shuffled array
+        shuffled.push(...pageVideos);
+    }
+
+    return shuffled;
+}
+
+/**
+ * Shuffle videos by secondary attributes (verb, object, hand) within the same scene
+ */
+function shuffleBySecondaryAttributes(videos) {
+    if (videos.length <= 1) return videos;
+
+    const shuffled = [];
+    const remaining = [...videos];
+
+    // Calculate diversity score based on verb, object, and hand
+    function getDiversityScore(videoIdx) {
+        const video = remaining[videoIdx];
+        if (!video) return -1;
+
+        let score = 0;
+        const recentWindow = shuffled.slice(-3); // Look at last 3 videos
+
+        // Penalize if recent videos have same secondary attributes
+        recentWindow.forEach(recentVideo => {
+            if (recentVideo.verb === video.verb) score -= 3;
+            if (recentVideo.object === video.object) score -= 3;
+            if (recentVideo.hand === video.hand) score -= 2;
+        });
+
+        // Add randomness to avoid deterministic ordering
+        score += Math.random() * 8;
+
+        return score;
+    }
+
+    // Distribute videos to maximize secondary attribute diversity
+    const used = new Set();
+
+    while (used.size < videos.length) {
+        let bestIdx = -1;
+        let bestScore = -Infinity;
+
+        // Find the video with highest diversity score
+        for (let i = 0; i < remaining.length; i++) {
+            if (used.has(i)) continue;
+
+            const score = getDiversityScore(i);
+            if (score > bestScore) {
+                bestScore = score;
+                bestIdx = i;
+            }
+        }
+
+        if (bestIdx >= 0) {
+            shuffled.push(remaining[bestIdx]);
+            used.add(bestIdx);
+        } else {
+            break;
+        }
+    }
+
+    return shuffled;
+}
+
+/**
+ * Simple Fisher-Yates shuffle for additional randomization
+ */
+function fisherYatesShuffle(array) {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
 }
 
 // ===== Shared Functions =====
