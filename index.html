@@ -140,6 +140,12 @@
             background-color: #505050;
         }
 
+        .btn-disabled {
+            background-color: #999;
+            pointer-events: none;
+            cursor: not-allowed;
+        }
+
         .btn i {
             font-size: 0.95rem;
         }
@@ -166,7 +172,7 @@
 
         .teaser-video {
             max-width: 850px;
-            margin: 0 auto;
+            margin: 0 auto 28px;
         }
 
         .teaser-video video,
@@ -543,9 +549,9 @@
         <p class="equal-advising"><sup>*</sup>Equal Supervision</p>
 
         <div class="buttons">
-            <a href="#" class="btn"><i class="fas fa-file-pdf"></i> Paper</a>
+            <a href="paper.pdf" class="btn"><i class="fas fa-file-pdf"></i> Paper</a>
             <a href="#" class="btn"><i class="fas fa-archive"></i> arXiv</a>
-            <a href="#" class="btn"><i class="fab fa-github"></i> Code</a>
+            <a href="#" class="btn btn-disabled"><i class="fab fa-github"></i> Code (coming soon)</a>
         </div>
     </header>
 
@@ -553,8 +559,8 @@
     <section class="teaser">
         <div class="container">
             <p class="teaser-text">
-                We introduce <strong>ObjectForesight</strong>, a framework for predicting future <strong>6-DoF</strong> object trajectories 
-                from a short history of egocentric observations. We train the model on just generic human videos of interactions without any task/skill-specific separation, and demonstrate generalization to diverse plausible manipulations of objects in new scenes.  
+                We introduce <strong>ObjectForesight</strong>, a framework for predicting future <strong>6-DoF</strong> object trajectories
+                from a short history of egocentric observations. We train the model on just generic human videos of interactions without any task/skill-specific separation, and demonstrate generalization to diverse plausible manipulations of objects in new scenes.
                 </p>
 
             <div class="teaser-video">
@@ -563,9 +569,9 @@
                 </video>
             </div>
 
-            <p>
-                    Our contributions are: 
-                (1) formalizing 3D object dynamics prediction from human videos, (2) a geometry-aware, object-centric diffusion model for 6-DoF 
+            <p class="teaser-text">
+                Our contributions are:
+                (1) formalizing 3D object dynamics prediction from human videos, (2) a geometry-aware, object-centric diffusion model for 6-DoF
                 trajectory prediction, and (3) a large-scale dataset of <strong>2 million+</strong> object-centric 3D trajectories with pseudo-ground-truth.
             </p>
         </div>
@@ -638,12 +644,12 @@
 
             <!-- Dataset Tabs -->
             <div class="demo-tabs">
-                <button class="demo-tab active" data-dataset="epic">EpicKitchen</button>
-                <button class="demo-tab" data-dataset="hot3d">HOT3D</button>
+                <button class="demo-tab active" data-dataset="hot3d">HOT3D</button>
+                <button class="demo-tab" data-dataset="epic">EpicKitchen</button>
             </div>
 
             <!-- EpicKitchen Page (1 page, 6 videos) -->
-            <div class="demo-page active" data-dataset="epic" data-page="1">
+            <div class="demo-page" data-dataset="epic" data-page="1">
                 <div class="demo-grid">
                     <div class="demo-item">
                         <video controls muted loop>
@@ -679,7 +685,7 @@
             </div>
 
             <!-- HOT3D Page 1 (6 videos) -->
-            <div class="demo-page" data-dataset="hot3d" data-page="1">
+            <div class="demo-page active" data-dataset="hot3d" data-page="1">
                 <div class="demo-grid">
                     <div class="demo-item">
                         <video controls muted loop>
