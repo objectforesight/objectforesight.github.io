@@ -147,7 +147,7 @@
         /* Teaser Section */
         .teaser {
             text-align: center;
-            padding: 30px 0 40px;
+            padding: 30px 0 0;
         }
 
         .teaser-text {
@@ -178,7 +178,7 @@
 
         /* Abstract Section */
         .abstract {
-            padding: 25px 0 35px;
+            padding: 10px 0 10px;
         }
 
         .abstract p {
@@ -195,13 +195,13 @@
             text-align: center;
             font-size: 1.6rem;
             font-weight: 500;
-            margin: 45px 0 22px;
+            margin: 18px 0 12px;
             color: var(--primary-color);
         }
 
         /* Architecture Section */
         .architecture {
-            padding: 0 0 35px;
+            padding: 0 0 10px;
         }
 
         .architecture-description {
@@ -254,7 +254,7 @@
 
         /* Data Curation Section */
         .data-curation {
-            padding: 0 0 35px;
+            padding: 0 0 10px;
         }
 
         .data-curation-description {
@@ -553,11 +553,11 @@
     <section class="teaser">
         <div class="container">
             <p class="teaser-text">
-                We introduce <strong>ObjectForesight</strong>, a framework for predicting future 3D object trajectories from a video context of past motion.
-                We first estimate the object's 3D shape and initial pose, and then predict its future <strong>6D poses</strong> over time.
-                There are three key contributions: (1) introducing and formalizing the task of 3D object dynamics prediction from human videos,
-                (2) a 3D object-centric dynamics model for future prediction of 6-DoF trajectories,
-                (3) a large-scale dataset of <strong>2 million+</strong> object-centric 3D trajectories with pseudo-groundtruth.
+                We introduce <strong>ObjectForesight</strong>, a framework for forecasting future <strong>6-DoF</strong> object trajectories 
+                from a short history of egocentric observations. Given metrically grounded, anchor-frame–canonicalized pose tracks and scene 
+                geometry, our model predicts a <strong>multi-modal</strong> distribution over future 6-DoF pose sequences. Our contributions are: 
+                (1) formalizing 3D object dynamics forecasting from human videos, (2) a geometry-aware, object-centric diffusion model for 6-DoF 
+                trajectory prediction, and (3) a large-scale dataset of <strong>2 million+</strong> object-centric 3D trajectories with pseudo-ground-truth.
             </p>
 
             <div class="teaser-video">
@@ -571,6 +571,7 @@
     <!-- Abstract -->
     <section class="abstract">
         <div class="container">
+            <h2 class="section-header">Abstract</h2>
             <p>
                 Humans can effortlessly anticipate how objects might move or change through interaction—imagining a cup being lifted, a knife slicing, or a lid being closed. We aim to endow computational systems with a similar ability to predict plausible future object motions directly from passive visual observation. We introduce ObjectForesight, a 3D object-centric dynamics model that predicts future 6-DoF poses and trajectories of rigid objects from short egocentric video sequences. Unlike conventional world/dynamics models that operate in pixel or latent space, ObjectForesight represents the world explicitly in 3D at the object level, enabling geometrically grounded and temporally coherent predictions that capture object affordances and trajectories. To train such a model at scale, we leverage recent advances in segmentation, mesh reconstruction, and 3D pose estimation to curate a dataset of 2 million+ short clips with pseudo-ground-truth 3D object trajectories. Through extensive experiments, we show that ObjectForesight achieves significant gains in accuracy, geometric consistency, and generalization to unseen objects and scenes—establishing a scalable framework for learning physically grounded, object-centric dynamics models directly from observation.
             </p>
@@ -581,44 +582,51 @@
     <!-- Architecture Section -->
     <section class="architecture">
         <div class="container">
-            <h2 class="section-header">Model Architecture</h2>
-
-            <p class="architecture-description">
-                ObjectForesight integrates a Diffusion Transformer (DiT) with a geometry-aware 3D point encoder, PointTransformerV3, to jointly reason about object motion and surrounding scene context. Given a short history of RGB frames with corresponding monocular depth maps and a mask of the object in the anchor frame, the model encodes the local 3D geometry of the scene and the object's recent motion into a unified representation. Conditioned on this visual and spatial context, ObjectForesight predicts a distribution over future 6-DoF object poses through a denoising diffusion process.
+          <h2 class="section-header">Model Architecture</h2>
+    
+          <p class="architecture-description">
+            ObjectForesight combines a geometry-aware 3D point encoder (PointTransformerV3) with a Diffusion Transformer (DiT) to forecast future object motion. From an anchor-frame point cloud, a short pose history with normalized boxes, and the
+      object mask, we build a scene embedding and predict a <strong>multi-modal</strong> distribution over future 6-DoF pose sequences via denoising diffusion.
+          </p>
+    
+          <ul class="architecture-points">
+            <li><strong>Geometry + Context:</strong> A PointTransformerV3 encoder conditions point features on motion context (FiLM) and produces an object-centric scene embedding.</li>
+            <li><strong>Stable Tokens:</strong> We predict depth-normalized 9D pose tokens for improved numerical stability.</li>
+            <li><strong>Diffusion Forecasting:</strong> A DiT with AdaLN-Zero conditioning denoises future tokens using v-parameterization and p2 weighting; DDIM sampling yields smooth, diverse trajectories.</li>
+          </ul>
+    
+          <div class="architecture-figure">
+            <video autoplay muted loop playsinline>
+              <source src="videos/architecture_web.mp4" type="video/mp4">
+            </video>
+            <p class="figure-caption">
+              Model architecture: conditioned on anchor-frame geometry and past poses, ObjectForesight samples future 6-DoF object trajectories.
             </p>
-
-            <ul class="architecture-points">
-                <li><strong>Scene and Context Encoding:</strong> A FiLM-conditioned PointTransformerV3 encoder converts the anchor-frame point cloud and motion context into a unified geometric embedding that summarizes local geometry and nearby scene structure.</li>
-                <li><strong>Depth-Normalized Pose Tokens:</strong> Each pose is reparameterized into a depth-normalized token representation, which reduces the dynamic range of translation and improves numerical stability in egocentric perspectives.</li>
-                <li><strong>Diffusion Transformer:</strong> The model operates on object-centric, depth-normalized 9D pose tokens using v-parameterization with p2 weighting. At inference, DDIM sampling produces smooth, diverse, and physically coherent 3D trajectories.</li>
-            </ul>
-
-            <div class="architecture-figure">
-                <video autoplay muted loop playsinline>
-                    <source src="videos/architecture_web.mp4" type="video/mp4">
-                </video>
-                <p class="figure-caption">Model architecture: Given past pose tokens, normalized bounding boxes, and the anchor-frame point cloud, ObjectForesight predicts future 6-DoF object trajectories.</p>
-            </div>
+          </div>
         </div>
-    </section>
+      </section>
 
     <!-- Data Curation Section -->
     <section class="data-curation">
         <div class="container">
-            <h2 class="section-header">Data Curation</h2>
-
-            <p class="data-curation-description">
-                Our curation pipeline converts in-the-wild egocentric videos into clean, metrically grounded trajectories of hand-manipulated objects. Starting from EPIC-Kitchens action segments, we apply a sequence of automatic extraction and quality gates to recover temporally coherent 6-DoF poses. We extract 2 million short clips (2–3 seconds each), automatically detecting hands with EgoHOS and identifying objects in contact using SAM2. We then recover 3D object meshes and poses with TRELLIS, and estimate camera motion and monocular depth using SpaTrackerV2. Pose initialization and tracking use FoundationPose with bidirectional tracking and re-registration. This process converts ordinary egocentric videos into the first large-scale dataset of 3D object trajectories at this level of scale, fidelity, and semantic diversity.
+          <h2 class="section-header">Data Curation</h2>
+    
+          <p class="data-curation-description">
+            We curate large-scale 6-DoF object trajectories from in-the-wild egocentric video using an automated pipeline with quality gates. Starting from action segments, we detect hands and candidate manipulated objects (EgoHOS), refine and
+      track masks over time (SAM2), and filter for clear manipulations and good viewpoints. We reconstruct object geometry (TRELLIS), recover metric depth and camera motion (SpaTrackerV2), and track 6-DoF poses with FoundationPose using
+      bidirectional tracking and re-registration. This yields <strong>2 million+</strong> short, metrically grounded, temporally coherent object-centric trajectories.
+          </p>
+    
+          <div class="pipeline-figure">
+            <video autoplay muted loop playsinline>
+              <source src="videos/datacuration_web.mp4" type="video/mp4">
+            </video>
+            <p class="figure-caption">
+              Data curation pipeline: from egocentric video to 3D object trajectories using EgoHOS, SAM2, TRELLIS, SpaTrackerV2, and FoundationPose.
             </p>
-
-            <div class="pipeline-figure">
-                <video autoplay muted loop playsinline>
-                    <source src="videos/datacuration_web.mp4" type="video/mp4">
-                </video>
-                <p class="figure-caption">Data curation pipeline: From egocentric video to 3D object trajectories using EgoHOS, SAM2, TRELLIS, SpaTrackerV2, and FoundationPose.</p>
-            </div>
+          </div>
         </div>
-    </section>
+      </section>
 
     <!-- Demo Videos Section -->
     <section class="demos">
