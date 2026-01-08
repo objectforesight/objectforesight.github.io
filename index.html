@@ -1,400 +1,832 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="description" content="EgoMAN: Learning 3D Hand Trajectory Prediction from Egocentric Videos">
-    <meta name="keywords"
-        content="3D hand trajectory prediction, hand-object interaction, egocentric motion forecasting, VLM reasoning">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>EgoMAN: Flowing from Reasoning to Motion</title>
-
-    <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
-    <link rel="stylesheet" href="./static/css/bulma.min.css">
-    <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
-    <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ObjectForesight: Predicting 3D Object Trajectories from Human Videos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
-    <link rel="stylesheet" href="./static/css/index.css">
+    <style>
+        :root {
+            --primary-color: #222;
+            --secondary-color: #444;
+            --accent-color: #4a90d9;
+            --venue-color: #e53935;
+            --caption-bg: #e8d4f8;
+            --light-bg: #f7f8f9;
+            --border-radius: 6px;
+            --max-width: 950px;
+            --content-width: 880px;
+        }
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="./static/js/bulma-carousel.min.js"></script>
-    <script src="./static/js/bulma-slider.min.js"></script>
-    <script src="./static/js/video_metadata.js"></script>
-    <script src="./static/js/index.js"></script>
-    <script>
-        // Hide teaser video section if video doesn't exist
-        document.addEventListener('DOMContentLoaded', function () {
-            const teaserVideo = document.getElementById('teaser');
-            if (teaserVideo) {
-                teaserVideo.addEventListener('error', function () {
-                    const teaserSection = teaserVideo.closest('.hero.teaser');
-                    if (teaserSection) {
-                        teaserSection.style.display = 'none';
-                    }
-                });
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            font-size: 15px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--primary-color);
+            background-color: #fff;
+            font-weight: 400;
+        }
+
+        .container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Section */
+        .header {
+            text-align: center;
+            padding: 60px 20px 40px;
+        }
+
+        .title {
+            font-size: 3.2rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            font-size: 1.7rem;
+            font-weight: 400;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .venue {
+            font-size: 1.15rem;
+            color: var(--venue-color);
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .authors {
+            margin-bottom: 8px;
+            line-height: 1.8;
+        }
+
+        .authors a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 400;
+        }
+
+        .authors a:hover {
+            text-decoration: underline;
+        }
+
+        .authors sup {
+            font-size: 0.65rem;
+            margin-left: 1px;
+            color: var(--accent-color);
+        }
+
+        .affiliations {
+            font-size: 1.1rem;
+            color: var(--secondary-color);
+            margin-bottom: 5px;
+        }
+
+        .affiliations sup {
+            font-size: 0.65rem;
+        }
+
+        .equal-advising {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 24px;
+        }
+
+        /* Buttons */
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            background-color: #363636;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 18px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: #505050;
+        }
+
+        .btn i {
+            font-size: 0.95rem;
+        }
+
+        /* Teaser Section */
+        .teaser {
+            text-align: center;
+            padding: 30px 0 40px;
+        }
+
+        .teaser-text {
+            font-size: 1rem;
+            max-width: var(--content-width);
+            margin: 0 auto 28px;
+            text-align: center;
+            line-height: 1.75;
+            color: var(--secondary-color);
+        }
+
+        .teaser-text strong {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .teaser-video {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        .teaser-video video,
+        .teaser-video img {
+            width: 100%;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+
+        /* Abstract Section */
+        .abstract {
+            padding: 25px 0 35px;
+        }
+
+        .abstract p {
+            max-width: var(--content-width);
+            margin: 0 auto;
+            font-size: 0.95rem;
+            line-height: 1.8;
+            text-align: justify;
+            color: var(--secondary-color);
+        }
+
+        /* Section Headers */
+        .section-header {
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 500;
+            margin: 45px 0 22px;
+            color: var(--primary-color);
+        }
+
+        /* Architecture Section */
+        .architecture {
+            padding: 0 0 35px;
+        }
+
+        .architecture-description {
+            max-width: var(--content-width);
+            margin: 0 auto 20px;
+            text-align: justify;
+            font-size: 0.95rem;
+            line-height: 1.75;
+            color: var(--secondary-color);
+        }
+
+        .architecture-points {
+            max-width: var(--content-width);
+            margin: 0 auto 30px;
+            padding-left: 20px;
+            list-style-type: disc;
+        }
+
+        .architecture-points li {
+            margin-bottom: 10px;
+            line-height: 1.7;
+            color: var(--secondary-color);
+            font-size: 0.95rem;
+        }
+
+        .architecture-points li strong {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .architecture-figure {
+            max-width: 780px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .architecture-figure img,
+        .architecture-figure video {
+            max-width: 100%;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+
+        .figure-caption {
+            font-size: 0.82rem;
+            color: #666;
+            margin-top: 10px;
+            font-style: italic;
+        }
+
+        /* Data Curation Section */
+        .data-curation {
+            padding: 0 0 35px;
+        }
+
+        .data-curation-description {
+            max-width: var(--content-width);
+            margin: 0 auto 25px;
+            text-align: justify;
+            font-size: 0.95rem;
+            line-height: 1.75;
+            color: var(--secondary-color);
+        }
+
+        .pipeline-figure {
+            max-width: 850px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .pipeline-figure img,
+        .pipeline-figure video {
+            max-width: 100%;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+
+        /* Demo Videos Section */
+        .demos {
+            padding: 15px 0 40px;
+            background-color: var(--light-bg);
+        }
+
+        .demos .container {
+            max-width: 1050px;
+        }
+
+        .demo-category {
+            margin-bottom: 30px;
+        }
+
+        .demo-category:last-child {
+            margin-bottom: 0;
+        }
+
+        .demo-category-title {
+            font-size: 1.05rem;
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: var(--primary-color);
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        @media (max-width: 600px) {
+            .demo-grid {
+                grid-template-columns: 1fr;
             }
-        });
-    </script>
-</head>
 
+            .title {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1.1rem;
+            }
+        }
+
+        .demo-item {
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .demo-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+
+        .demo-item video {
+            width: 100%;
+            display: block;
+        }
+
+        .demo-caption {
+            background: var(--caption-bg);
+            padding: 12px 12px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--secondary-color);
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.45;
+        }
+
+        /* Acknowledgements */
+        .acknowledgements {
+            padding: 35px 0;
+        }
+
+        .acknowledgements p {
+            max-width: var(--content-width);
+            margin: 0 auto;
+            text-align: justify;
+            line-height: 1.75;
+            font-size: 0.95rem;
+            color: var(--secondary-color);
+        }
+
+        /* BibTeX */
+        .bibtex {
+            padding: 20px 0 50px;
+        }
+
+        .bibtex-block {
+            max-width: var(--content-width);
+            margin: 0 auto;
+            background: #f5f5f5;
+            border-radius: var(--border-radius);
+            padding: 18px 22px;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 0.8rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            color: var(--secondary-color);
+            border: 1px solid #e8e8e8;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 25px 20px;
+            background: #f0f0f0;
+            font-size: 0.85rem;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Video placeholder styling */
+        .video-placeholder {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 100%;
+            aspect-ratio: 16/9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        .video-placeholder i {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .video-placeholder-content {
+            text-align: center;
+        }
+
+        .video-placeholder small {
+            opacity: 0.8;
+            font-size: 0.8rem;
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Selection color */
+        ::selection {
+            background: rgba(93, 173, 226, 0.3);
+        }
+
+        /* Pagination styles */
+        .demo-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 25px;
+        }
+
+        .demo-tab {
+            padding: 8px 20px;
+            background: #fff;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--secondary-color);
+            transition: all 0.2s ease;
+        }
+
+        .demo-tab:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .demo-tab.active {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: #fff;
+        }
+
+        .demo-page {
+            display: none;
+        }
+
+        .demo-page.active {
+            display: block;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .pagination-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+            background: #fff;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--secondary-color);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pagination-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .pagination-btn.active {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: #fff;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
 <body>
 
-    <section class="hero">
-        <div class="hero-body">
-            <div class="container is-max-desktop">
-                <div class="columns is-centered">
-                    <div class="column has-text-centered">
-                        <h1 class="title is-1 publication-title">Flowing from Reasoning to Motion: Learning 3D Hand
-                            Trajectory Prediction from Egocentric Human Interaction Videos</h1>
-                        <div class="is-size-5 publication-authors">
-                            <span class="author-block">
-                                <a href="https://www.mingfeichen.com/">Mingfei Chen</a><sup>1,2</sup>,</span>
-                            <span class="author-block">
-                                <a href="https://yifanwang.cc/">Yifan Wang</a><sup>1</sup>,</span>
-                            <span class="author-block">
-                                <a href="https://sites.google.com/view/zhengqinli">Zhengqin Li</a><sup>1</sup>,</span>
-                            <span class="author-block">
-                                <a href="https://homangab.github.io/">Homanga Bharadhwaj</a><sup>1</sup>,</span>
-                            <span class="author-block">
-                                <a href="https://terencecyj.github.io/">Yujin Chen</a><sup>1</sup>,</span>
-                            <span class="author-block">
-                                <a href="https://www.linkedin.com/in/chuanqin/">Chuan Qin</a><sup>1</sup>,</span>
-                            <span class="author-block">
-                                <a href="https://ziyikou.me/">Ziyi Kou</a><sup>1</sup>,</span>
-                            <span class="author-block">
-                                <a href="https://scholar.google.com/citations?user=ddFnVyYAAAAJ&hl=en">Yuan Tian</a><sup>1</sup>,</span>
-                            <span class="author-block">
-                                <a href="https://www.ericwhitmire.com/">Eric Whitmire</a><sup>1</sup>,</span>
-                            <span class="author-block">
-                                <a href="https://rsodhi.com/">Rajinder Sodhi</a><sup>1</sup>,</span>
-                            <span class="author-block">
-                                <a href="https://www.hbenko.com/">Hrvoje Benko</a><sup>1</sup>,</span>
-                            <span class="author-block">
-                                <a href="https://faculty.washington.edu/shlizee/NW/index.html">Eli Shlizerman</a><sup>2</sup>,</span>
-                            <span class="author-block">
-                                <a href="https://openreview.net/profile?id=~Yue_Liu34">Yue Liu</a><sup>1</sup></span>
-                        </div>
+    <!-- Header -->
+    <header class="header">
+        <h1 class="title">ObjectForesight</h1>
+        <h2 class="subtitle">Predicting 3D Object Trajectories from Human Videos</h2>
 
-                        <div class="is-size-5 publication-authors">
-                            <span class="author-block"><sup>1</sup>Meta</span>
-                            <span class="author-block"><sup>2</sup>University of Washington</span>
-                        </div>
-
-                        <div class="column has-text-centered">
-                            <div class="publication-links">
-                                <span class="link-block">
-                                    <a href="https://arxiv.org/pdf/2512.16907" class="external-link button is-normal is-rounded is-dark">
-                                        <span class="icon">
-                                            <i class="ai ai-arxiv"></i>
-                                        </span>
-                                        <span>arXiv</span>
-                                    </a>
-                                </span>
-                                <span class="link-block">
-                                    <a href="https://github.com/facebookresearch/egoman" class="external-link button is-normal is-rounded is-dark">
-                                        <span class="icon">
-                                            <i class="fab fa-github"></i>
-                                        </span>
-                                        <span>Code</span>
-                                    </a>
-                                </span>
-                                <!-- <span class="link-block">
-                                    <a href="#" class="external-link button is-normal is-rounded is-dark">
-                                        <span class="icon">
-                                            <i class="far fa-images"></i>
-                                        </span>
-                                        <span>Data</span>
-                                    </a>
-                                </span> -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="authors">
+            <a href="mailto:rustin@cs.washington.edu">Rustin Soraki</a><sup>1</sup>,
+            <a href="#">Homanga Bharadhwaj</a><sup>2*</sup>,
+            <a href="#">Ali Farhadi</a><sup>1*</sup>,
+            <a href="#">Roozbeh Mottaghi</a><sup>1*</sup>
         </div>
-    </section>
+        <p class="affiliations"><sup>1</sup>University of Washington, <sup>2</sup>Carnegie Mellon University</p>
+        <p class="equal-advising"><sup>*</sup>Equal Supervision</p>
 
-
-
-    <section class="hero teaser">
-        <div class="container is-max-desktop">
-            <div class="hero-body">
-                <img src="./static/images/teaser_final_final.png" alt="EgoMAN Teaser"
-                    style="width: 100%; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" />
-                    <p class="has-text-centered" style="margin-top: 0.5rem;">
-                        <em>
-                            We introduce the <b>EgoMAN dataset</b> (top), a large-scale egocentric dataset for stage-aware 3D hand trajectory prediction, containing 219K 6-DoF trajectories and 3M structured QA pairs for semantic, spatial, and motion reasoning. At inference, the <b>EgoMAN model</b> (bottom) takes an image, past hand motion, and an intent query, performs stage-aware reasoning to predict intent-specific waypoints, and generates distinct 6-DoF hand trajectories for different intents in the same scene.
-                            </em>
-
-                    </p>
-            </div>
+        <div class="buttons">
+            <a href="#" class="btn"><i class="fas fa-file-pdf"></i> Paper</a>
+            <a href="#" class="btn"><i class="fas fa-archive"></i> arXiv</a>
+            <a href="#" class="btn"><i class="fab fa-github"></i> Code</a>
         </div>
-    </section>
+    </header>
 
-
-    <section class="section">
-        <div class="container is-max-desktop">
-          <div class="content has-text-centered">
-
-            <video
-              autoplay
-              muted
-              loop
-              playsinline
-              preload="metadata"
-              controls
-              style="width: 100%; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-              <source src="static/videos/egoman_suppl_video.mp4" type="video/mp4">
-              Your browser does not support the video tag.
-            </video>
-
-            <p class="has-text-centered" style="margin-top: 0.5rem;">
-                <em>Introduction video of EgoMAN with qualitative results.</em>
-            </p>
-
-          </div>
-        </div>
-      </section>
-
-
-
-
-
-    <section class="section">
-        <div class="container is-max-desktop">
-            <div class="columns is-centered has-text-centered">
-                <div class="column is-four-fifths">
-                    <h2 class="title is-3">Abstract</h2>
-                    <div class="content has-text-justified">
-                        <p>
-                            Prior works on 3D hand trajectory prediction are constrained by datasets that decouple
-                            motion from semantic supervision and by models that weakly link reasoning and action. To
-                            address these, we first present the <strong>EgoMAN dataset</strong>, a large-scale
-                            egocentric dataset for interaction stage–aware 3D hand trajectory prediction with 219K 6DoF
-                            trajectories and 3M structured QA pairs for semantic, spatial, and motion reasoning.
-                        </p>
-                        <p>
-                            We then introduce the <strong>EgoMAN model</strong>, a reasoning-to-motion framework that
-                            links vision–language reasoning and motion generation via a trajectory-token interface.
-                            Trained progressively to align reasoning with motion dynamics, our approach yields accurate
-                            and stage-aware trajectories with generalization across real-world scenes.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-
-
-
-
-    <!-- EgoMAN Section -->
-    <section class="section" style="background-color: #f8f9fa;">
-        <div class="container is-max-desktop">
-            <h2 class="title is-3 has-text-centered" style="color: #5a67d8;">
-                <span class="icon"><i class="fas fa-video"></i></span>
-                Trajectory Forecasting on EgoMAN Unseen <br> (Dynamic Ego-Video Overlay)
-            </h2>
-
-            <div class="filters has-text-centered"
-                style="margin-bottom: 2rem; background: white; padding: 1.5rem; border-radius: 10px; border: 3px solid #5a67d8;">
-                <div class="field is-grouped is-grouped-multiline is-grouped-centered">
-                    <div class="control">
-                        <label class="label">Hand:</label>
-                        <div class="select">
-                            <select id="egoman-filter-hand">
-                                <option value="all">All</option>
-                                <option value="left">Left</option>
-                                <option value="right">Right</option>
-                                <option value="both">Both</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="control">
-                        <label class="label">Action:</label>
-                        <div class="select">
-                            <select id="egoman-filter-verb">
-                                <option value="all">All</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="control">
-                        <label class="label">Object:</label>
-                        <div class="select">
-                            <select id="egoman-filter-object">
-                                <option value="all">All</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="control">
-                        <label class="label">Scene:</label>
-                        <div class="select">
-                            <select id="egoman-filter-scene">
-                                <option value="all">All</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="control">
-                        <button class="button is-info" onclick="resetEgomanFilters()">Reset Filters</button>
-                    </div>
-                </div>
-
-                <div class="has-text-centered" style="margin-top: 1rem;">
-                    <p id="egoman-video-count" class="has-text-weight-bold"></p>
-                </div>
-            </div>
-
-            <div class="video-gallery">
-                <div id="egoman-video-container" class="columns is-multiline is-centered">
-                    <!-- EgoMAN videos will be loaded here by JavaScript -->
-                </div>
-            </div>
-
-            <div class="pagination-controls has-text-centered" style="margin-top: 2rem;">
-                <button class="button is-info" onclick="previousEgomanPage()" id="egoman-prev-btn">
-                    <span class="icon"><i class="fas fa-chevron-left"></i></span>
-                    <span>Previous</span>
-                </button>
-                <span id="egoman-page-info" style="margin: 0 1rem;"></span>
-                <button class="button is-info" onclick="nextEgomanPage()" id="egoman-next-btn">
-                    <span>Next</span>
-                    <span class="icon"><i class="fas fa-chevron-right"></i></span>
-                </button>
-            </div>
-        </div>
-    </section>
-
-    <!-- HOT3D Section -->
-    <section class="section" style="background-color: #fafbfc;">
-        <div class="container is-max-desktop">
-            <h2 class="title is-3 has-text-centered" style="color: #6c757d;">
-                <span class="icon"><i class="fas fa-database"></i></span>
-                Zero-Shot Eval on HOT3D Out-Of-Domain <br> (Dynamic Ego-Video Overlay)
-            </h2>
-
-            <div class="filters has-text-centered"
-                style="margin-bottom: 2rem; background: white; padding: 1.5rem; border-radius: 10px; border: 3px solid #6c757d;">
-                <div class="field is-grouped is-grouped-multiline is-grouped-centered">
-                    <div class="control">
-                        <label class="label">Hand:</label>
-                        <div class="select">
-                            <select id="hot3d-filter-hand">
-                                <option value="all">All</option>
-                                <option value="left">Left</option>
-                                <option value="right">Right</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="control">
-                        <label class="label">Object:</label>
-                        <div class="select">
-                            <select id="hot3d-filter-object">
-                                <option value="all">All</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="control">
-                        <label class="label">P-ID:</label>
-                        <div class="select">
-                            <select id="hot3d-filter-pid">
-                                <option value="all">All</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="control">
-                        <button class="button" onclick="resetHot3dFilters()">Reset Filters</button>
-                    </div>
-                </div>
-
-                <div class="has-text-centered" style="margin-top: 1rem;">
-                    <p id="hot3d-video-count" class="has-text-weight-bold"></p>
-                </div>
-            </div>
-
-            <div class="video-gallery">
-                <div id="hot3d-video-container" class="columns is-multiline is-centered">
-                    <!-- HOT3D videos will be loaded here by JavaScript -->
-                </div>
-            </div>
-
-            <div class="pagination-controls has-text-centered" style="margin-top: 2rem;">
-                <button class="button is-danger" onclick="previousHot3dPage()" id="hot3d-prev-btn">
-                    <span class="icon"><i class="fas fa-chevron-left"></i></span>
-                    <span>Previous</span>
-                </button>
-                <span id="hot3d-page-info" style="margin: 0 1rem;"></span>
-                <button class="button is-danger" onclick="nextHot3dPage()" id="hot3d-next-btn">
-                    <span>Next</span>
-                    <span class="icon"><i class="fas fa-chevron-right"></i></span>
-                </button>
-            </div>
-        </div>
-    </section>
-
-    <section class="section">
-        <div class="container is-max-desktop">
-            <h2 class="title is-3 has-text-centered">Trajectory Prediction with Diverse Intention Text</h2>
-            <p class="subtitle has-text-centered" style="margin-top: 1rem;">
-                Given an input frame and diverse intention texts, our model generates multiple diverse trajectory
-                predictions
-            </p>
-
-            <div id="comparisons-container" style="margin-top: 3rem;">
-                <!-- Comparisons will be loaded here by JavaScript -->
-            </div>
-        </div>
-    </section>
-
-
-    <section class="section" id="BibTeX">
-        <div class="container is-max-desktop content">
-            <h2 class="title">BibTeX</h2>
-            <pre><code>@misc{chen2025flowingreasoningmotionlearning,
-      title={Flowing from Reasoning to Motion: Learning 3D Hand Trajectory Prediction from Egocentric Human Interaction Videos},
-      author={Mingfei Chen and Yifan Wang and Zhengqin Li and Homanga Bharadhwaj and Yujin Chen and Chuan Qin and Ziyi Kou and Yuan Tian and Eric Whitmire and Rajinder Sodhi and Hrvoje Benko and Eli Shlizerman and Yue Liu},
-      year={2025},
-      eprint={2512.16907},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV},
-      url={https://arxiv.org/abs/2512.16907},
-}</code></pre>
-        </div>
-    </section>
-
-    <footer class="footer">
+    <!-- Teaser -->
+    <section class="teaser">
         <div class="container">
-            <div class="content has-text-centered">
-                <a class="icon-link" href="#">
-                    <i class="fas fa-file-pdf"></i>
-                </a>
-                <a class="icon-link" href="#" class="external-link" disabled>
-                    <i class="fab fa-github"></i>
-                </a>
+            <p class="teaser-text">
+                We introduce <strong>ObjectForesight</strong>, a framework for predicting future 3D object trajectories from a video context of past motion.
+                We first estimate the object's 3D shape and initial pose, and then predict its future <strong>6D poses</strong> over time.
+                There are three key contributions: (1) introducing and formalizing the task of 3D object dynamics prediction from human videos,
+                (2) a 3D object-centric dynamics model for future prediction of 6-DoF trajectories,
+                (3) a large-scale dataset of <strong>2 million+</strong> object-centric 3D trajectories with pseudo-groundtruth.
+            </p>
+
+            <div class="teaser-video">
+                <video autoplay muted loop playsinline>
+                    <source src="videos/teaser_web.mp4" type="video/mp4">
+                </video>
             </div>
-            <div class="columns is-centered">
-                <div class="column is-8">
-                    <div class="content">
-                        <p>
-                            This website is adapted from <a
-                                href="https://github.com/nerfies/nerfies.github.io">Nerfies</a>, which is licensed under
-                            a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons
-                                Attribution-ShareAlike 4.0 International License</a>.
-                        </p>
+        </div>
+    </section>
+
+    <!-- Abstract -->
+    <section class="abstract">
+        <div class="container">
+            <p>
+                Humans can effortlessly anticipate how objects might move or change through interaction—imagining a cup being lifted, a knife slicing, or a lid being closed. We aim to endow computational systems with a similar ability to predict plausible future object motions directly from passive visual observation. We introduce ObjectForesight, a 3D object-centric dynamics model that predicts future 6-DoF poses and trajectories of rigid objects from short egocentric video sequences. Unlike conventional world/dynamics models that operate in pixel or latent space, ObjectForesight represents the world explicitly in 3D at the object level, enabling geometrically grounded and temporally coherent predictions that capture object affordances and trajectories. To train such a model at scale, we leverage recent advances in segmentation, mesh reconstruction, and 3D pose estimation to curate a dataset of 2 million+ short clips with pseudo-ground-truth 3D object trajectories. Through extensive experiments, we show that ObjectForesight achieves significant gains in accuracy, geometric consistency, and generalization to unseen objects and scenes—establishing a scalable framework for learning physically grounded, object-centric dynamics models directly from observation.
+            </p>
+
+        </div>
+    </section>
+
+    <!-- Architecture Section -->
+    <section class="architecture">
+        <div class="container">
+            <h2 class="section-header">Model Architecture</h2>
+
+            <p class="architecture-description">
+                ObjectForesight integrates a Diffusion Transformer (DiT) with a geometry-aware 3D point encoder, PointTransformerV3, to jointly reason about object motion and surrounding scene context. Given a short history of RGB frames with corresponding monocular depth maps and a mask of the object in the anchor frame, the model encodes the local 3D geometry of the scene and the object's recent motion into a unified representation. Conditioned on this visual and spatial context, ObjectForesight predicts a distribution over future 6-DoF object poses through a denoising diffusion process.
+            </p>
+
+            <ul class="architecture-points">
+                <li><strong>Scene and Context Encoding:</strong> A FiLM-conditioned PointTransformerV3 encoder converts the anchor-frame point cloud and motion context into a unified geometric embedding that summarizes local geometry and nearby scene structure.</li>
+                <li><strong>Depth-Normalized Pose Tokens:</strong> Each pose is reparameterized into a depth-normalized token representation, which reduces the dynamic range of translation and improves numerical stability in egocentric perspectives.</li>
+                <li><strong>Diffusion Transformer:</strong> The model operates on object-centric, depth-normalized 9D pose tokens using v-parameterization with p2 weighting. At inference, DDIM sampling produces smooth, diverse, and physically coherent 3D trajectories.</li>
+            </ul>
+
+            <div class="architecture-figure">
+                <video autoplay muted loop playsinline>
+                    <source src="videos/architecture_web.mp4" type="video/mp4">
+                </video>
+                <p class="figure-caption">Model architecture: Given past pose tokens, normalized bounding boxes, and the anchor-frame point cloud, ObjectForesight predicts future 6-DoF object trajectories.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Curation Section -->
+    <section class="data-curation">
+        <div class="container">
+            <h2 class="section-header">Data Curation</h2>
+
+            <p class="data-curation-description">
+                Our curation pipeline converts in-the-wild egocentric videos into clean, metrically grounded trajectories of hand-manipulated objects. Starting from EPIC-Kitchens action segments, we apply a sequence of automatic extraction and quality gates to recover temporally coherent 6-DoF poses. We extract 2 million short clips (2–3 seconds each), automatically detecting hands with EgoHOS and identifying objects in contact using SAM2. We then recover 3D object meshes and poses with TRELLIS, and estimate camera motion and monocular depth using SpaTrackerV2. Pose initialization and tracking use FoundationPose with bidirectional tracking and re-registration. This process converts ordinary egocentric videos into the first large-scale dataset of 3D object trajectories at this level of scale, fidelity, and semantic diversity.
+            </p>
+
+            <div class="pipeline-figure">
+                <video autoplay muted loop playsinline>
+                    <source src="videos/datacuration_web.mp4" type="video/mp4">
+                </video>
+                <p class="figure-caption">Data curation pipeline: From egocentric video to 3D object trajectories using EgoHOS, SAM2, TRELLIS, SpaTrackerV2, and FoundationPose.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Videos Section -->
+    <section class="demos">
+        <div class="container">
+            <h2 class="section-header">Qualitative Results</h2>
+
+            <!-- Dataset Tabs -->
+            <div class="demo-tabs">
+                <button class="demo-tab active" data-dataset="epic">EpicKitchen</button>
+                <button class="demo-tab" data-dataset="hot3d">HOT3D</button>
+            </div>
+
+            <!-- EpicKitchen Page (1 page, 6 videos) -->
+            <div class="demo-page active" data-dataset="epic" data-page="1">
+                <div class="demo-grid">
+                    <div class="demo-item">
+                        <video controls muted loop>
+                            <source src="videos/epickitchen/epic1.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="demo-item">
+                        <video controls muted loop>
+                            <source src="videos/epickitchen/epic2.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="demo-item">
+                        <video controls muted loop>
+                            <source src="videos/epickitchen/epic3.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="demo-item">
+                        <video controls muted loop>
+                            <source src="videos/epickitchen/epic4.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="demo-item">
+                        <video controls muted loop>
+                            <source src="videos/epickitchen/epic5.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="demo-item">
+                        <video controls muted loop>
+                            <source src="videos/epickitchen/epic6.mp4" type="video/mp4">
+                        </video>
                     </div>
                 </div>
             </div>
+
+            <!-- HOT3D Page 1 (6 videos) -->
+            <div class="demo-page" data-dataset="hot3d" data-page="1">
+                <div class="demo-grid">
+                    <div class="demo-item">
+                        <video controls muted loop>
+                            <source src="videos/hot3d/hot3d1.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="demo-item">
+                        <video controls muted loop>
+                            <source src="videos/hot3d/hot3d2.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="demo-item">
+                        <video controls muted loop>
+                            <source src="videos/hot3d/hot3d3.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="demo-item">
+                        <video controls muted loop>
+                            <source src="videos/hot3d/hot3d4.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="demo-item">
+                        <video controls muted loop>
+                            <source src="videos/hot3d/hot3d5.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="demo-item">
+                        <video controls muted loop>
+                            <source src="videos/hot3d/hot3d6.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+                <div class="pagination" data-dataset="hot3d">
+                    <button class="pagination-btn active" data-page="1">1</button>
+                    <button class="pagination-btn" data-page="2">2</button>
+                </div>
+            </div>
+
+            <!-- HOT3D Page 2 (6 videos) -->
+            <div class="demo-page" data-dataset="hot3d" data-page="2">
+                <div class="demo-grid">
+                    <div class="demo-item">
+                        <video controls muted loop>
+                            <source src="videos/hot3d/hot3d7.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="demo-item">
+                        <video controls muted loop>
+                            <source src="videos/hot3d/hot3d8.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="demo-item">
+                        <video controls muted loop>
+                            <source src="videos/hot3d/hot3d9.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="demo-item">
+                        <video controls muted loop>
+                            <source src="videos/hot3d/hot3d10.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="demo-item">
+                        <video controls muted loop>
+                            <source src="videos/hot3d/hot3d11.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="demo-item">
+                        <video controls muted loop>
+                            <source src="videos/hot3d/hot3d12.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+                <div class="pagination" data-dataset="hot3d">
+                    <button class="pagination-btn" data-page="1">1</button>
+                    <button class="pagination-btn active" data-page="2">2</button>
+                </div>
+            </div>
         </div>
+    </section>
+
+    <!-- Acknowledgements -->
+    <section class="acknowledgements">
+        <div class="container">
+            <h2 class="section-header">Acknowledgements</h2>
+            <p>
+                We thank our colleagues at the University of Washington and Carnegie Mellon University for helpful discussions throughout this project.
+            </p>
+        </div>
+    </section>
+
+    <!-- BibTeX -->
+    <section class="bibtex">
+        <div class="container">
+            <h2 class="section-header">BibTeX</h2>
+            <div class="bibtex-block">
+@article{soraki2025objectforesight,
+    title={ObjectForesight: Predicting 3D Object Trajectories from Human Videos},
+    author={Soraki, Rustin and Bharadhwaj, Homanga and Farhadi, Ali and Mottaghi, Roozbeh},
+    journal={arXiv preprint},
+    year={2025},
+    url={https://objectforesight.github.io}
+}
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>Website template inspired by <a href="https://www.chenbao.tech/handsonvlm/">HandsOnVLM</a> and <a href="https://nerfies.github.io/">Nerfies</a>.</p>
     </footer>
 
-</body>
+    <script>
+        // Dataset tab switching
+        document.querySelectorAll('.demo-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const dataset = tab.dataset.dataset;
 
+                // Update active tab
+                document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // Hide all pages, show first page of selected dataset
+                document.querySelectorAll('.demo-page').forEach(page => {
+                    page.classList.remove('active');
+                });
+                const firstPage = document.querySelector(`.demo-page[data-dataset="${dataset}"][data-page="1"]`);
+                if (firstPage) firstPage.classList.add('active');
+
+                // Pause all videos
+                document.querySelectorAll('.demo-page video').forEach(v => v.pause());
+            });
+        });
+
+        // Pagination
+        document.querySelectorAll('.pagination-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const page = btn.dataset.page;
+                const pagination = btn.closest('.pagination');
+                const dataset = pagination.dataset.dataset;
+
+                // Hide all pages of this dataset
+                document.querySelectorAll(`.demo-page[data-dataset="${dataset}"]`).forEach(p => {
+                    p.classList.remove('active');
+                });
+
+                // Show selected page
+                const targetPage = document.querySelector(`.demo-page[data-dataset="${dataset}"][data-page="${page}"]`);
+                if (targetPage) targetPage.classList.add('active');
+
+                // Update pagination buttons on all pages of this dataset
+                document.querySelectorAll(`.pagination[data-dataset="${dataset}"] .pagination-btn`).forEach(b => {
+                    b.classList.toggle('active', b.dataset.page === page);
+                });
+
+                // Pause all videos
+                document.querySelectorAll('.demo-page video').forEach(v => v.pause());
+            });
+        });
+    </script>
+</body>
 </html>
