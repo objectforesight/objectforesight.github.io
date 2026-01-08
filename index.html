@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ObjectForesight: Predicting 3D Object Trajectories from Human Videos</title>
+    <title>ObjectForesight: Predicting Future 3D Object Trajectories from Human Videos</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -553,10 +553,11 @@
     <section class="teaser">
         <div class="container">
             <p class="teaser-text">
-                We introduce <strong>ObjectForesight</strong>, a framework for forecasting future <strong>6-DoF</strong> object trajectories 
-                from a short history of egocentric observations. Given metrically grounded, anchor-frame–canonicalized pose tracks and scene 
-                geometry, our model predicts a <strong>multi-modal</strong> distribution over future 6-DoF pose sequences. Our contributions are: 
-                (1) formalizing 3D object dynamics forecasting from human videos, (2) a geometry-aware, object-centric diffusion model for 6-DoF 
+                We introduce <strong>ObjectForesight</strong>, a framework for predicting future <strong>6-DoF</strong> object trajectories 
+                from a short history of egocentric observations. We train the model on just generic human videos of interactions without any task/skill-specific separation, and demonstrate generalization to diverse plausible manipulations of objects in new scenes.  
+                </p><p>
+                    Our contributions are: 
+                (1) formalizing 3D object dynamics prediction from human videos, (2) a geometry-aware, object-centric diffusion model for 6-DoF 
                 trajectory prediction, and (3) a large-scale dataset of <strong>2 million+</strong> object-centric 3D trajectories with pseudo-ground-truth.
             </p>
 
