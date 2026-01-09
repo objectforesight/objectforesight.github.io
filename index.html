@@ -316,17 +316,149 @@
             gap: 18px;
         }
 
+        /* Tablet breakpoint */
+        @media (max-width: 900px) {
+            .title {
+                font-size: 2.6rem;
+            }
+
+            .subtitle {
+                font-size: 1.4rem;
+            }
+
+            .authors a {
+                font-size: 1.1rem;
+            }
+
+            .affiliations {
+                font-size: 1rem;
+            }
+
+            .comparison-labels {
+                grid-template-columns: 2fr 10px 1fr;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 2fr 10px 1fr;
+            }
+        }
+
+        /* Small tablet breakpoint */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2.2rem;
+            }
+
+            .subtitle {
+                font-size: 1.2rem;
+            }
+
+            .demo-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .section-header {
+                font-size: 1.45rem;
+            }
+        }
+
+        /* Mobile breakpoint */
         @media (max-width: 600px) {
+            .header {
+                padding: 40px 15px 30px;
+            }
+
+            .title {
+                font-size: 1.8rem;
+            }
+
+            .subtitle {
+                font-size: 1.05rem;
+            }
+
+            .authors a {
+                font-size: 1rem;
+            }
+
+            .affiliations {
+                font-size: 0.95rem;
+            }
+
+            .venue {
+                font-size: 1rem;
+            }
+
+            .btn {
+                padding: 10px 18px;
+                font-size: 0.9rem;
+            }
+
+            .section-header {
+                font-size: 1.35rem;
+            }
+
+            .teaser-text,
+            .abstract p,
+            .architecture-description,
+            .architecture-points li,
+            .data-curation-description,
+            .acknowledgements p {
+                text-align: left;
+            }
+
             .demo-grid {
                 grid-template-columns: 1fr;
             }
 
-            .title {
-                font-size: 2rem;
+            .demo-tabs {
+                flex-wrap: wrap;
             }
 
-            .subtitle {
-                font-size: 1.1rem;
+            .demo-tab {
+                padding: 10px 18px;
+            }
+
+            .pagination-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 0.9rem;
+            }
+
+            .comparison-labels {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .comparison-labels span:nth-child(2) {
+                display: none;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .comparison-grid .spacer {
+                display: none;
+            }
+
+            .comparison-row {
+                margin-bottom: 25px;
+            }
+
+            .comparison-header {
+                font-size: 0.9rem;
+                padding: 14px 16px;
+            }
+
+            .bibtex-block {
+                padding: 14px 16px;
+                font-size: 0.7rem;
+            }
+
+            .container {
+                padding: 0 15px;
             }
         }
 
@@ -536,6 +668,84 @@
             opacity: 0.4;
             cursor: not-allowed;
         }
+
+        /* Comparison collapsible section */
+        .comparison-section {
+            margin-top: 30px;
+        }
+
+        .comparison-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 12px 16px;
+            background: #fff;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--secondary-color);
+            transition: all 0.2s ease;
+        }
+
+        .comparison-header:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .comparison-header .arrow {
+            transition: transform 0.2s ease;
+        }
+
+        .comparison-header.expanded .arrow {
+            transform: rotate(90deg);
+        }
+
+        .comparison-content {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .comparison-content.show {
+            display: block;
+        }
+
+        .comparison-row {
+            margin-bottom: 20px;
+        }
+
+        .comparison-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .comparison-labels {
+            display: grid;
+            grid-template-columns: 3fr 10px 1fr;
+            gap: 4px;
+            margin-bottom: 8px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--secondary-color);
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 3fr 10px 1fr;
+            gap: 4px;
+            align-items: start;
+        }
+
+        .comparison-grid .spacer {
+            width: 10px;
+        }
+
+        .comparison-grid video {
+            width: 100%;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
     </style>
 </head>
 <body>
@@ -616,7 +826,7 @@
               <source src="videos/architecture_web.mp4" type="video/mp4">
             </video>
             <p class="figure-caption">
-              Model architecture: conditioned on anchor-frame geometry and past poses, ObjectForesight predicts future 6-DoF object trajectories.
+              Model architecture: conditioned on anchor-frame geometry and past poses, ObjectForesight samples future 6-DoF object trajectories.
             </p>
           </div>
         </div>
@@ -649,10 +859,6 @@
         <div class="container">
             <h2 class="section-header">Qualitative Results</h2>
 
-          <p class="architecture-description">
-We show qualitative results of ObjectForesight on unseen clips in HOT3D and EpicKitchens. We can see that the future 3D predictions are plausible and correspond meaningfully to manipulations of the object given the context frames as condition. 
-          </p>
-            
             <!-- Dataset Tabs -->
             <div class="demo-tabs">
                 <button class="demo-tab active" data-dataset="hot3d">HOT3D</button>
@@ -774,6 +980,60 @@ We show qualitative results of ObjectForesight on unseen clips in HOT3D and Epic
                     <button class="pagination-btn active" data-page="2">2</button>
                 </div>
             </div>
+
+            <!-- Comparison Section -->
+            <div class="comparison-section">
+                <div class="comparison-header">
+                    <i class="fas fa-chevron-right arrow"></i>
+                    <span>Comparison with video generation model</span>
+                </div>
+                <div class="comparison-content">
+                    <div class="comparison-labels">
+                        <span>GT | Luma AI | Ours</span>
+                        <span></span>
+                        <span>Context</span>
+                    </div>
+
+                    <!-- Row 1 -->
+                    <div class="comparison-row">
+                        <div class="comparison-grid">
+                            <video controls muted loop>
+                                <source src="videos/comparison/row1_compare.mp4" type="video/mp4">
+                            </video>
+                            <div class="spacer"></div>
+                            <video controls muted loop>
+                                <source src="videos/comparison/row1_context.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+
+                    <!-- Row 2 -->
+                    <div class="comparison-row">
+                        <div class="comparison-grid">
+                            <video controls muted loop>
+                                <source src="videos/comparison/row2_compare.mp4" type="video/mp4">
+                            </video>
+                            <div class="spacer"></div>
+                            <video controls muted loop>
+                                <source src="videos/comparison/row2_context.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+
+                    <!-- Row 3 -->
+                    <div class="comparison-row">
+                        <div class="comparison-grid">
+                            <video controls muted loop>
+                                <source src="videos/comparison/row3_compare.mp4" type="video/mp4">
+                            </video>
+                            <div class="spacer"></div>
+                            <video controls muted loop>
+                                <source src="videos/comparison/row3_context.mp4" type="video/mp4">
+                            </video>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -854,6 +1114,16 @@ We show qualitative results of ObjectForesight on unseen clips in HOT3D and Epic
                 // Pause all videos
                 document.querySelectorAll('.demo-page video').forEach(v => v.pause());
             });
+        });
+
+        // Comparison section toggle
+        document.querySelector('.comparison-header')?.addEventListener('click', function() {
+            this.classList.toggle('expanded');
+            document.querySelector('.comparison-content').classList.toggle('show');
+            // Pause videos when collapsed
+            if (!this.classList.contains('expanded')) {
+                document.querySelectorAll('.comparison-content video').forEach(v => v.pause());
+            }
         });
     </script>
 </body>
