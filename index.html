@@ -447,17 +447,12 @@
             }
 
             .comparison-labels {
-                grid-template-columns: 1fr;
-                gap: 0;
-            }
-
-            .comparison-labels span:nth-child(2) {
                 display: none;
             }
 
             .comparison-grid {
                 grid-template-columns: 1fr;
-                gap: 10px;
+                gap: 15px;
             }
 
             .comparison-grid .spacer {
@@ -465,7 +460,20 @@
             }
 
             .comparison-row {
-                margin-bottom: 25px;
+                margin-bottom: 30px;
+            }
+
+            .comparison-video-wrapper {
+                display: block;
+            }
+
+            .mobile-label {
+                display: block;
+                font-size: 0.85rem;
+                font-weight: 500;
+                color: var(--secondary-color);
+                text-align: center;
+                margin-bottom: 8px;
             }
 
             .comparison-header {
@@ -767,6 +775,18 @@
             border-radius: 6px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
+
+        .comparison-video-wrapper {
+            display: contents;
+        }
+
+        .comparison-video-wrapper video {
+            width: 100%;
+        }
+
+        .mobile-label {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -1022,39 +1042,57 @@
                     <!-- Row 1 -->
                     <div class="comparison-row">
                         <div class="comparison-grid">
-                            <video controls muted loop>
-                                <source src="videos/comparison/row1_compare.mp4" type="video/mp4">
-                            </video>
+                            <div class="comparison-video-wrapper">
+                                <span class="mobile-label">GT | Luma AI | Ours</span>
+                                <video controls muted loop>
+                                    <source src="videos/comparison/row1_compare.mp4" type="video/mp4">
+                                </video>
+                            </div>
                             <div class="spacer"></div>
-                            <video controls muted loop>
-                                <source src="videos/comparison/row1_context.mp4" type="video/mp4">
-                            </video>
+                            <div class="comparison-video-wrapper">
+                                <span class="mobile-label">Luma Output</span>
+                                <video controls muted loop>
+                                    <source src="videos/comparison/row1_context.mp4" type="video/mp4">
+                                </video>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Row 2 -->
                     <div class="comparison-row">
                         <div class="comparison-grid">
-                            <video controls muted loop>
-                                <source src="videos/comparison/row2_compare.mp4" type="video/mp4">
-                            </video>
+                            <div class="comparison-video-wrapper">
+                                <span class="mobile-label">GT | Luma AI | Ours</span>
+                                <video controls muted loop>
+                                    <source src="videos/comparison/row2_compare.mp4" type="video/mp4">
+                                </video>
+                            </div>
                             <div class="spacer"></div>
-                            <video controls muted loop>
-                                <source src="videos/comparison/row2_context.mp4" type="video/mp4">
-                            </video>
+                            <div class="comparison-video-wrapper">
+                                <span class="mobile-label">Luma Output</span>
+                                <video controls muted loop>
+                                    <source src="videos/comparison/row2_context.mp4" type="video/mp4">
+                                </video>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Row 3 -->
                     <div class="comparison-row">
                         <div class="comparison-grid">
-                            <video controls muted loop>
-                                <source src="videos/comparison/row3_compare.mp4" type="video/mp4">
-                            </video>
+                            <div class="comparison-video-wrapper">
+                                <span class="mobile-label">GT | Luma AI | Ours</span>
+                                <video controls muted loop>
+                                    <source src="videos/comparison/row3_compare.mp4" type="video/mp4">
+                                </video>
+                            </div>
                             <div class="spacer"></div>
-                            <video controls muted loop>
-                                <source src="videos/comparison/row3_context.mp4" type="video/mp4">
-                            </video>
+                            <div class="comparison-video-wrapper">
+                                <span class="mobile-label">Luma Output</span>
+                                <video controls muted loop>
+                                    <source src="videos/comparison/row3_context.mp4" type="video/mp4">
+                                </video>
+                            </div>
                         </div>
                     </div>
                 </div>
