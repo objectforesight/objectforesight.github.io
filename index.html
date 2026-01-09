@@ -616,7 +616,7 @@
               <source src="videos/architecture_web.mp4" type="video/mp4">
             </video>
             <p class="figure-caption">
-              Model architecture: conditioned on anchor-frame geometry and past poses, ObjectForesight samples future 6-DoF object trajectories.
+              Model architecture: conditioned on anchor-frame geometry and past poses, ObjectForesight predicts future 6-DoF object trajectories.
             </p>
           </div>
         </div>
@@ -649,6 +649,10 @@
         <div class="container">
             <h2 class="section-header">Qualitative Results</h2>
 
+          <p class="architecture-description">
+We show qualitative results of ObjectForesight on unseen clips in HOT3D and EpicKitchens. We can see that the future 3D predictions are plausible and correspond meaningfully to manipulations of the object given the context frames as condition. 
+          </p>
+            
             <!-- Dataset Tabs -->
             <div class="demo-tabs">
                 <button class="demo-tab active" data-dataset="hot3d">HOT3D</button>
