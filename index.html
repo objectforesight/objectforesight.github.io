@@ -1030,13 +1030,16 @@
             <div class="comparison-section">
                 <div class="comparison-header">
                     <i class="fas fa-chevron-right arrow"></i>
-                    <span>Comparison with video generation model</span>
+                    <span>Comparison with Video Generation followed by Reconstruction</span>
                 </div>
+                <p>
+                    Video models now have been become very good at generating physically plausible videos given some visual/text context. We compare with a state-of-the-art video generation model Luma Ray 3. Conditioned on the context frames, we generate a video (zero-shot) and recover 6-DoF motion from the generated frames using our curation pipeline.  Although these videos exhibit appearance artifacts and provide no explicit 3D constraints, our curation pipeline can still recover approximate object motion from the rendered frames. The recovered trajectories, however, are typically less stable than ObjectForesight's direct predictions, underscoring the advantage of explicitly modeling 3D dynamics rather than inferring them post-hoc from generated videos.
+                </p>
                 <div class="comparison-content">
                     <div class="comparison-labels">
                         <span>GT | Luma AI | Ours</span>
                         <span></span>
-                        <span>Luma Output</span>
+                        <span>Luma AI Output</span>
                     </div>
 
                     <!-- Row 1 -->
@@ -1100,7 +1103,7 @@
         </div>
     </section>
 
-    <!-- Acknowledgements -->
+    <!-- <!-- Acknowledgements -->
     <section class="acknowledgements">
         <div class="container">
             <h2 class="section-header">Acknowledgements</h2>
@@ -1108,7 +1111,7 @@
                 We thank our colleagues at the University of Washington and Carnegie Mellon University for helpful discussions throughout this project.
             </p>
         </div>
-    </section>
+    </section> -->
 
     <!-- BibTeX -->
     <section class="bibtex">
