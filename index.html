@@ -50,7 +50,13 @@
         /* Header Section */
         .header {
             text-align: center;
-            padding: 60px 20px 40px;
+            padding: 25px 20px 40px;
+        }
+
+        .logo {
+            width: 300px;
+            height: auto;
+            margin-bottom: 5px;
         }
 
         .title {
@@ -366,7 +372,12 @@
         /* Mobile breakpoint */
         @media (max-width: 600px) {
             .header {
-                padding: 40px 15px 30px;
+                padding: 20px 15px 30px;
+            }
+
+            .logo {
+                width: 220px;
+                margin-bottom: 4px;
             }
 
             .title {
@@ -752,6 +763,7 @@
 
     <!-- Header -->
     <header class="header">
+        <img src="logo.png" alt="ObjectForesight Logo" class="logo">
         <h1 class="title">ObjectForesight</h1>
         <h2 class="subtitle">Predicting Future 3D Object Trajectories from Human Videos</h2>
 
