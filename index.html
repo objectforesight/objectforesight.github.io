@@ -394,6 +394,12 @@
             border: 1px solid #e8e8e8;
         }
 
+        .bibtex-block pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
         /* Footer */
         .footer {
             text-align: center;
@@ -550,8 +556,9 @@
 
         <div class="buttons">
             <a href="paper.pdf" class="btn"><i class="fas fa-file-pdf"></i> Paper</a>
-            <a href="#" class="btn"><i class="fas fa-archive"></i> arXiv</a>
+            <a href="http://arxiv.org/abs/2601.05237" class="btn"><i class="fas fa-archive"></i> arXiv</a>
             <a href="#" class="btn btn-disabled"><i class="fab fa-github"></i> Code (coming soon)</a>
+            <a href="#" class="btn btn-disabled"><i class="fas fa-database"></i> Data (coming soon)</a>
         </div>
     </header>
 
@@ -780,15 +787,15 @@
     <section class="bibtex">
         <div class="container">
             <h2 class="section-header">BibTeX</h2>
-            <div class="bibtex-block">
-@article{soraki2025objectforesight,
-    title={ObjectForesight: Predicting 3D Object Trajectories from Human Videos},
-    author={Soraki, Rustin and Bharadhwaj, Homanga and Farhadi, Ali and Mottaghi, Roozbeh},
-    journal={arXiv preprint},
-    year={2025},
-    url={https://objectforesight.github.io}
-}
-            </div>
+            <div class="bibtex-block"><pre>@misc{soraki2026objectforesightpredictingfuture3d,
+  title={ObjectForesight: Predicting Future 3D Object Trajectories from Human Videos},
+  author={Rustin Soraki and Homanga Bharadhwaj and Ali Farhadi and Roozbeh Mottaghi},
+  year={2026},
+  eprint={2601.05237},
+  archivePrefix={arXiv},
+  primaryClass={cs.CV},
+  url={https://arxiv.org/abs/2601.05237}
+}</pre></div>
         </div>
     </section>
 
