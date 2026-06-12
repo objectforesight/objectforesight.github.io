@@ -6,19 +6,32 @@
     <title>ObjectForesight: Predicting Future 3D Object Trajectories from Human Videos</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #222;
-            --secondary-color: #444;
-            --accent-color: #4a90d9;
-            --venue-color: #e53935;
-            --caption-bg: #e8d4f8;
-            --light-bg: #f7f8f9;
-            --border-radius: 6px;
-            --max-width: 950px;
-            --content-width: 880px;
+            /* Sage & Parchment — warm, earthy, editorial */
+            --bg: #f0ebdf;            /* warm parchment */
+            --bg-warm: #e8e1d0;       /* deeper parchment — alternating bands */
+            --surface: #faf7ef;       /* lifted cream card */
+            --primary-color: #29271f; /* warm near-black ink */
+            --secondary-color: #5c5547;/* warm gray */
+            --muted-color: #8b8270;   /* faint warm gray */
+            --accent-color: #6b8e23;  /* avocado / olive-drab */
+            --accent-hover: #567219;  /* deep avocado */
+            --accent-soft: #e8eecb;   /* avocado tint */
+            --venue-color: #8a6a3c;   /* muted ochre-brown */
+            --caption-bg: #e9e1cf;    /* warm kraft */
+            --light-bg: #e8e1d0;      /* alias — demos band */
+            --border-color: #ddd5c2;  /* warm hairline */
+            --border-strong: #c9bda4;
+            --ink-block: #242a1a;     /* dark olive (code block) */
+            --border-radius: 16px;
+            --max-width: 1000px;
+            --content-width: 920px;
+            --shadow-sm: 0 1px 2px rgba(41,39,31,0.05), 0 1px 3px rgba(41,39,31,0.06);
+            --shadow-md: 0 2px 6px rgba(41,39,31,0.05), 0 10px 28px rgba(41,39,31,0.09);
+            --shadow-lg: 0 4px 14px rgba(41,39,31,0.07), 0 22px 48px rgba(41,39,31,0.14);
         }
 
         * {
@@ -34,11 +47,34 @@
         }
 
         body {
-            font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             line-height: 1.65;
             color: var(--primary-color);
-            background-color: #fff;
+            background-color: var(--bg);
             font-weight: 400;
+            letter-spacing: -0.005em;
+            text-rendering: optimizeLegibility;
+        }
+
+        /* Keyboard focus affordance */
+        a:focus-visible,
+        button:focus-visible,
+        .comparison-header:focus-visible {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+
+        /* Subtle paper grain over the whole page */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: 2;
+            pointer-events: none;
+            opacity: 0.5;
+            mix-blend-mode: multiply;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
         }
 
         .container {
@@ -49,8 +85,29 @@
 
         /* Header Section */
         .header {
+            position: relative;
             text-align: center;
-            padding: 25px 20px 40px;
+            padding: 30px 20px 40px;
+            background:
+                radial-gradient(72% 72% at 50% -8%, rgba(107,142,35,0.15) 0%, rgba(107,142,35,0) 58%),
+                linear-gradient(180deg, #f4efe3 0%, var(--bg) 100%);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Orchestrated page-load reveal */
+        @media (prefers-reduced-motion: no-preference) {
+            @keyframes rise {
+                from { opacity: 0; transform: translateY(14px); }
+                to   { opacity: 1; transform: none; }
+            }
+            .header > * { animation: rise 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+            .header > .logo       { animation-delay: 0.02s; }
+            .header > .title      { animation-delay: 0.10s; }
+            .header > .subtitle   { animation-delay: 0.18s; }
+            .header > .authors    { animation-delay: 0.26s; }
+            .header > .affiliations { animation-delay: 0.32s; }
+            .header > .equal-advising { animation-delay: 0.36s; }
+            .header > .buttons    { animation-delay: 0.42s; }
         }
 
         .logo {
@@ -60,19 +117,26 @@
         }
 
         .title {
-            font-size: 3.2rem;
+            font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+            font-optical-sizing: auto;
+            font-size: 3.85rem;
             font-weight: 600;
             color: var(--primary-color);
-            margin-bottom: 12px;
-            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+            letter-spacing: -0.02em;
+            line-height: 1.02;
         }
 
         .subtitle {
-            font-size: 1.7rem;
+            font-family: 'Fraunces', Georgia, serif;
+            font-optical-sizing: auto;
+            font-size: 1.5rem;
             font-weight: 400;
-            color: var(--primary-color);
-            margin-bottom: 20px;
-            line-height: 1.4;
+            color: #45402f;
+            margin-bottom: 22px;
+            line-height: 1.35;
+            letter-spacing: -0.005em;
+            text-wrap: balance;
         }
 
         .venue {
@@ -88,14 +152,19 @@
         }
 
         .authors a {
-            color: var(--accent-color);
+            color: var(--primary-color);
             text-decoration: none;
+            text-underline-offset: 3px;
+            text-decoration-color: transparent;
             font-size: 1.2rem;
-            font-weight: 400;
+            font-weight: 500;
+            transition: color 0.15s ease, text-decoration-color 0.15s ease;
         }
 
         .authors a:hover {
+            color: var(--accent-color);
             text-decoration: underline;
+            text-decoration-color: var(--accent-color);
         }
 
         .authors sup {
@@ -116,8 +185,8 @@
 
         .equal-advising {
             font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 24px;
+            color: var(--muted-color);
+            margin-bottom: 22px;
         }
 
         /* Buttons */
@@ -131,25 +200,31 @@
         .btn {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 8px 18px;
-            background-color: #363636;
-            color: #fff;
+            gap: 7px;
+            padding: 9px 19px;
+            background-color: #29271f;
+            color: #f4efe3;
             text-decoration: none;
-            border-radius: 18px;
+            border-radius: 999px;
             font-size: 0.9rem;
             font-weight: 500;
-            transition: all 0.2s ease;
+            letter-spacing: -0.005em;
+            box-shadow: 0 1px 2px rgba(41,39,31,0.22);
+            transition: transform 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
         }
 
         .btn:hover {
-            background-color: #505050;
+            background-color: var(--accent-color);
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 7px 18px rgba(107,142,35,0.34);
         }
 
         .btn-disabled {
-            background-color: #999;
+            background-color: #b4a892;
             pointer-events: none;
             cursor: not-allowed;
+            box-shadow: none;
         }
 
         .btn i {
@@ -159,16 +234,102 @@
         /* Teaser Section */
         .teaser {
             text-align: center;
-            padding: 30px 0 0;
+            padding: 24px 0 0;
         }
 
         .teaser-text {
             font-size: 1rem;
-            max-width: var(--content-width);
-            margin: 0 auto 28px;
-            text-align: center;
+            max-width: 850px;
+            margin: 0 auto 20px;
+            text-align: left;
             line-height: 1.75;
             color: var(--secondary-color);
+            text-wrap: pretty;
+        }
+
+        /* Lead paragraph — the opening hook */
+        .teaser-text:first-of-type {
+            font-size: 1.12rem;
+            line-height: 1.7;
+            color: #38342a;
+        }
+
+        /* Contributions — highlight cards, aligned with the video column */
+        .contributions {
+            max-width: 850px;
+            margin: 6px auto 4px;
+        }
+
+        .contributions-eyebrow {
+            text-align: center;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--accent-color);
+            margin-bottom: 18px;
+        }
+
+        .contributions-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .contribution-card {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 22px 22px 24px;
+            box-shadow: var(--shadow-sm);
+            text-align: left;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .contribution-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .contribution-card .c-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 13px;
+            background: var(--accent-soft);
+            color: var(--accent-color);
+            font-size: 1.15rem;
+            margin-bottom: 15px;
+        }
+
+        .contribution-card h3 {
+            font-family: 'Fraunces', Georgia, serif;
+            font-optical-sizing: auto;
+            font-size: 1.18rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            letter-spacing: -0.01em;
+            margin-bottom: 7px;
+        }
+
+        .contribution-card p {
+            font-size: 0.92rem;
+            line-height: 1.55;
+            color: var(--secondary-color);
+        }
+
+        .contribution-card strong {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        @media (max-width: 640px) {
+            .contributions-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
         }
 
         .teaser-text strong {
@@ -178,49 +339,81 @@
 
         .teaser-video {
             max-width: 850px;
-            margin: 0 auto 28px;
+            margin: 0 auto 22px;
         }
 
         .teaser-video video,
         .teaser-video img {
             width: 100%;
             border-radius: var(--border-radius);
-            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-lg);
         }
 
         /* Abstract Section */
         .abstract {
-            padding: 10px 0 10px;
+            padding: 30px 0 8px;
         }
 
         .abstract p {
             max-width: var(--content-width);
             margin: 0 auto;
-            font-size: 0.95rem;
-            line-height: 1.8;
-            text-align: justify;
-            color: var(--secondary-color);
+            font-size: 1rem;
+            line-height: 1.82;
+            text-align: left;
+            text-wrap: pretty;
+            color: #413c30;
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-left: 3px solid var(--accent-color);
+            border-radius: var(--border-radius);
+            padding: 28px 32px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .abstract p::first-letter {
+            font-family: 'Fraunces', Georgia, serif;
+            font-weight: 600;
+            font-size: 3.2rem;
+            line-height: 0.8;
+            float: left;
+            margin: 0.06em 0.1em 0 0;
+            color: var(--accent-color);
         }
 
         /* Section Headers */
         .section-header {
             text-align: center;
-            font-size: 1.6rem;
-            font-weight: 500;
-            margin: 18px 0 12px;
+            font-family: 'Fraunces', Georgia, serif;
+            font-optical-sizing: auto;
+            font-size: 1.95rem;
+            font-weight: 600;
+            margin: 0 0 22px;
             color: var(--primary-color);
+            letter-spacing: -0.015em;
+            text-wrap: balance;
+        }
+
+        .section-header::after {
+            content: "";
+            display: block;
+            width: 38px;
+            height: 2px;
+            margin: 14px auto 0;
+            border-radius: 999px;
+            background: var(--accent-color);
         }
 
         /* Architecture Section */
         .architecture {
-            padding: 0 0 10px;
+            padding: 28px 0 10px;
         }
 
         .architecture-description {
             max-width: var(--content-width);
             margin: 0 auto 20px;
             text-align: justify;
-            font-size: 0.95rem;
+            hyphens: auto;
+            font-size: 1rem;
             line-height: 1.75;
             color: var(--secondary-color);
         }
@@ -236,7 +429,11 @@
             margin-bottom: 10px;
             line-height: 1.7;
             color: var(--secondary-color);
-            font-size: 0.95rem;
+            font-size: 1rem;
+        }
+
+        .architecture-points li::marker {
+            color: var(--accent-color);
         }
 
         .architecture-points li strong {
@@ -254,26 +451,42 @@
         .architecture-figure video {
             max-width: 100%;
             border-radius: var(--border-radius);
-            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-md);
         }
 
         .figure-caption {
-            font-size: 0.82rem;
-            color: #666;
-            margin-top: 10px;
-            font-style: italic;
+            font-family: 'Fraunces', Georgia, serif;
+            font-optical-sizing: auto;
+            font-size: 0.86rem;
+            color: #534d3f;
+            margin: 16px auto 0;
+            line-height: 1.55;
+            max-width: 600px;
+            text-align: center;
+            text-wrap: pretty;
+        }
+
+        .figure-caption .figure-label {
+            font-weight: 600;
+            color: var(--accent-color);
+        }
+
+        .figure-caption .figure-title {
+            font-weight: 600;
+            color: var(--primary-color);
         }
 
         /* Data Curation Section */
         .data-curation {
-            padding: 0 0 10px;
+            padding: 28px 0 10px;
         }
 
         .data-curation-description {
             max-width: var(--content-width);
             margin: 0 auto 25px;
             text-align: justify;
-            font-size: 0.95rem;
+            hyphens: auto;
+            font-size: 1rem;
             line-height: 1.75;
             color: var(--secondary-color);
         }
@@ -288,13 +501,15 @@
         .pipeline-figure video {
             max-width: 100%;
             border-radius: var(--border-radius);
-            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow-md);
         }
 
         /* Demo Videos Section */
         .demos {
-            padding: 15px 0 40px;
+            padding: 25px 0 45px;
             background-color: var(--light-bg);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
         }
 
         .demos .container {
@@ -304,10 +519,11 @@
         .demos-description {
             max-width: var(--content-width);
             margin: 0 auto 25px;
-            text-align: center;
-            font-size: 0.95rem;
+            text-align: left;
+            font-size: 1rem;
             line-height: 1.75;
             color: var(--secondary-color);
+            text-wrap: pretty;
         }
 
         .demo-category {
@@ -473,7 +689,8 @@
                 font-weight: 500;
                 color: var(--secondary-color);
                 text-align: center;
-                margin-bottom: 8px;
+                background: var(--caption-bg);
+                padding: 8px 10px;
             }
 
             .comparison-header {
@@ -481,7 +698,7 @@
                 padding: 14px 16px;
             }
 
-            .bibtex-block {
+            .bibtex-block pre {
                 padding: 14px 16px;
                 font-size: 0.7rem;
             }
@@ -492,16 +709,17 @@
         }
 
         .demo-item {
-            background: #fff;
-            border-radius: 8px;
+            background: var(--surface);
+            border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
         .demo-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
         }
 
         .demo-item video {
@@ -524,51 +742,96 @@
 
         /* Acknowledgements */
         .acknowledgements {
-            padding: 35px 0;
+            padding: 30px 0 10px;
         }
 
         .acknowledgements p {
             max-width: var(--content-width);
             margin: 0 auto;
-            text-align: justify;
+            text-align: left;
+            text-wrap: pretty;
             line-height: 1.75;
-            font-size: 0.95rem;
+            font-size: 1rem;
             color: var(--secondary-color);
         }
 
         /* BibTeX */
         .bibtex {
-            padding: 20px 0 50px;
+            padding: 28px 0 50px;
         }
 
         .bibtex-block {
             max-width: var(--content-width);
             margin: 0 auto;
-            background: #f5f5f5;
+            background: var(--ink-block);
             border-radius: var(--border-radius);
-            padding: 18px 22px;
-            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-            font-size: 0.8rem;
-            line-height: 1.6;
-            overflow-x: auto;
-            color: var(--secondary-color);
-            border: 1px solid #e8e8e8;
+            overflow: hidden;
+            color: #e9ebd6;
+            border: 1px solid #323a27;
+            box-shadow: var(--shadow-md);
+        }
+
+        .bibtex-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 9px 14px 9px 20px;
+            background: rgba(255, 255, 255, 0.035);
+            border-bottom: 1px solid #323a27;
+        }
+
+        .bibtex-bar .bibtex-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.74rem;
+            letter-spacing: 0.02em;
+            color: #99a07c;
+        }
+
+        .bibtex-copy {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 13px;
+            font-family: 'Hanken Grotesk', sans-serif;
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: #e3e6cf;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #3c4530;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+        }
+
+        .bibtex-copy:hover,
+        .bibtex-copy.copied {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: #fff;
         }
 
         .bibtex-block pre {
             margin: 0;
+            padding: 20px 24px;
+            overflow-x: auto;
             white-space: pre-wrap;
             word-wrap: break-word;
+            font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, Menlo, monospace;
+            font-size: 0.78rem;
+            line-height: 1.75;
         }
+
+        .bibtex-block .tok-key { color: #b6cf72; }
+        .bibtex-block .tok-cite { color: #cfcaa0; }
 
         /* Footer */
         .footer {
             text-align: center;
-            padding: 25px 20px;
-            background: #f0f0f0;
+            padding: 32px 20px;
+            background: var(--bg-warm);
             font-size: 0.85rem;
-            color: #666;
-            border-top: 1px solid #e0e0e0;
+            color: var(--muted-color);
+            border-top: 1px solid var(--border-color);
         }
 
         .footer a {
@@ -582,7 +845,7 @@
 
         /* Video placeholder styling */
         .video-placeholder {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #82a83a 0%, #4f6a1b 100%);
             width: 100%;
             aspect-ratio: 16/9;
             display: flex;
@@ -591,7 +854,7 @@
             color: white;
             font-size: 1rem;
             border-radius: var(--border-radius);
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            box-shadow: var(--shadow-md);
         }
 
         .video-placeholder i {
@@ -616,7 +879,7 @@
 
         /* Selection color */
         ::selection {
-            background: rgba(93, 173, 226, 0.3);
+            background: rgba(107, 142, 35, 0.30);
         }
 
         /* Pagination styles */
@@ -628,14 +891,15 @@
         }
 
         .demo-tab {
-            padding: 8px 20px;
-            background: #fff;
-            border: 2px solid #ddd;
-            border-radius: 20px;
+            padding: 8px 22px;
+            background: var(--surface);
+            border: 1.5px solid var(--border-color);
+            border-radius: 999px;
             cursor: pointer;
             font-size: 0.9rem;
             font-weight: 500;
             color: var(--secondary-color);
+            box-shadow: var(--shadow-sm);
             transition: all 0.2s ease;
         }
 
@@ -667,11 +931,11 @@
         }
 
         .pagination-btn {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
-            border: 2px solid #ddd;
-            background: #fff;
+            border: 1.5px solid var(--border-color);
+            background: var(--surface);
             cursor: pointer;
             font-size: 0.85rem;
             font-weight: 500;
@@ -708,22 +972,30 @@
             align-items: center;
             gap: 8px;
             cursor: pointer;
-            padding: 12px 16px;
-            background: #fff;
-            border: 2px solid #ddd;
-            border-radius: 8px;
+            padding: 14px 18px;
+            background: var(--surface);
+            border: 1.5px solid var(--border-color);
+            border-radius: 12px;
             font-size: 1rem;
-            font-weight: 500;
-            color: var(--secondary-color);
+            font-weight: 600;
+            color: var(--primary-color);
+            box-shadow: var(--shadow-sm);
+            user-select: none;
             transition: all 0.2s ease;
         }
 
         .comparison-header:hover {
             border-color: var(--accent-color);
-            color: var(--accent-color);
+            background: var(--accent-soft);
+        }
+
+        .comparison-header.expanded {
+            background: var(--accent-soft);
+            border-color: var(--border-strong);
         }
 
         .comparison-header .arrow {
+            color: var(--accent-color);
             transition: transform 0.2s ease;
         }
 
@@ -738,6 +1010,16 @@
 
         .comparison-content.show {
             display: block;
+        }
+
+        .comparison-description {
+            max-width: var(--content-width);
+            margin: 0 auto 24px;
+            text-align: left;
+            text-wrap: pretty;
+            font-size: 1rem;
+            line-height: 1.75;
+            color: var(--secondary-color);
         }
 
         .comparison-row {
@@ -772,16 +1054,27 @@
 
         .comparison-grid video {
             width: 100%;
-            border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: block;
         }
 
         .comparison-video-wrapper {
-            display: contents;
+            display: block;
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .comparison-video-wrapper:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
         }
 
         .comparison-video-wrapper video {
             width: 100%;
+            display: block;
         }
 
         .mobile-label {
@@ -830,11 +1123,26 @@
                 </video>
             </div>
 
-            <p class="teaser-text">
-                Our contributions are:
-                (1) formalizing 3D object dynamics prediction from human videos, (2) a geometry-aware, object-centric diffusion model for 6-DoF
-                trajectory prediction, and (3) a large-scale dataset of <strong>2 million+</strong> object-centric 3D trajectories with pseudo-ground-truth.
-            </p>
+            <div class="contributions">
+                <p class="contributions-eyebrow">Our Contributions</p>
+                <div class="contributions-grid">
+                    <div class="contribution-card">
+                        <span class="c-icon"><i class="fas fa-lightbulb"></i></span>
+                        <h3>A New Task</h3>
+                        <p>Formalizing 3D object-dynamics prediction directly from human videos.</p>
+                    </div>
+                    <div class="contribution-card">
+                        <span class="c-icon"><i class="fas fa-diagram-project"></i></span>
+                        <h3>6-DoF Model</h3>
+                        <p>A geometry-aware, object-centric diffusion model for 6-DoF trajectory prediction.</p>
+                    </div>
+                    <div class="contribution-card">
+                        <span class="c-icon"><i class="fas fa-database"></i></span>
+                        <h3>2M+ Dataset</h3>
+                        <p>Large-scale object-centric 3D trajectories with <strong>pseudo-ground-truth</strong>.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -870,7 +1178,7 @@
               <source src="videos/architecture_web.mp4" type="video/mp4">
             </video>
             <p class="figure-caption">
-              Model architecture: conditioned on anchor-frame geometry and past poses, ObjectForesight predicts future 6-DoF object trajectories.
+              <span class="figure-label">Figure 1.</span> <span class="figure-title">Model architecture.</span> Conditioned on anchor-frame geometry and past poses, ObjectForesight predicts future 6-DoF object trajectories.
             </p>
           </div>
         </div>
@@ -892,7 +1200,7 @@
               <source src="videos/datacuration_web.mp4" type="video/mp4">
             </video>
             <p class="figure-caption">
-              Data curation pipeline: from egocentric video to 3D object trajectories using EgoHOS, SAM2, TRELLIS, SpaTrackerV2, and FoundationPose.
+              <span class="figure-label">Figure 2.</span> <span class="figure-title">Data-curation pipeline.</span> From egocentric video to 3D object trajectories using EgoHOS, SAM2, TRELLIS, SpaTrackerV2, and FoundationPose.
             </p>
           </div>
         </div>
@@ -1030,14 +1338,14 @@
 
             <!-- Comparison Section -->
             <div class="comparison-section">
-                <div class="comparison-header">
+                <div class="comparison-header" role="button" tabindex="0" aria-expanded="false">
                     <i class="fas fa-chevron-right arrow"></i>
                     <span>Comparison with Video Generation followed by Reconstruction</span>
                 </div>
-                <p>
-                    Video models now have been become very good at generating physically plausible videos given some visual/text context. We compare with a state-of-the-art video generation model Luma Ray 3. Conditioned on the context frames, we generate a video (zero-shot) and recover 6-DoF motion from the generated frames using our curation pipeline.  Although these videos exhibit appearance artifacts and provide no explicit 3D constraints, our curation pipeline can still recover approximate object motion from the rendered frames. The recovered trajectories, however, are typically less stable than ObjectForesight's direct predictions, underscoring the advantage of explicitly modeling 3D dynamics rather than inferring them post-hoc from generated videos.
-                </p>
                 <div class="comparison-content">
+                    <p class="comparison-description">
+                        Video models now have been become very good at generating physically plausible videos given some visual/text context. We compare with a state-of-the-art video generation model Luma Ray 3. Conditioned on the context frames, we generate a video (zero-shot) and recover 6-DoF motion from the generated frames using our curation pipeline.  Although these videos exhibit appearance artifacts and provide no explicit 3D constraints, our curation pipeline can still recover approximate object motion from the rendered frames. The recovered trajectories, however, are typically less stable than ObjectForesight's direct predictions, underscoring the advantage of explicitly modeling 3D dynamics rather than inferring them post-hoc from generated videos.
+                    </p>
                     <div class="comparison-labels">
                         <span>GT | Luma AI | Ours</span>
                         <span></span>
@@ -1105,7 +1413,7 @@
         </div>
     </section>
 
-    <!-- <!-- Acknowledgements -->
+    <!-- Acknowledgements -->
     <section class="acknowledgements">
         <div class="container">
             <h2 class="section-header">Acknowledgements</h2>
@@ -1113,21 +1421,27 @@
                 We thank our colleagues at the University of Washington and Carnegie Mellon University for helpful discussions throughout this project.
             </p>
         </div>
-    </section> -->
+    </section>
 
     <!-- BibTeX -->
     <section class="bibtex">
         <div class="container">
             <h2 class="section-header">BibTeX</h2>
-            <div class="bibtex-block"><pre>@misc{soraki2026objectforesightpredictingfuture3d,
-  title={ObjectForesight: Predicting Future 3D Object Trajectories from Human Videos},
-  author={Rustin Soraki and Homanga Bharadhwaj and Ali Farhadi and Roozbeh Mottaghi},
-  year={2026},
-  eprint={2601.05237},
-  archivePrefix={arXiv},
-  primaryClass={cs.CV},
-  url={https://arxiv.org/abs/2601.05237}
-}</pre></div>
+            <div class="bibtex-block">
+                <div class="bibtex-bar">
+                    <span class="bibtex-label">objectforesight.bib</span>
+                    <button class="bibtex-copy" type="button" aria-label="Copy BibTeX citation"><i class="fas fa-copy"></i> Copy</button>
+                </div>
+                <pre><span class="tok-key">@misc</span>{<span class="tok-cite">soraki2026objectforesightpredictingfuture3d</span>,
+  <span class="tok-key">title</span>={ObjectForesight: Predicting Future 3D Object Trajectories from Human Videos},
+  <span class="tok-key">author</span>={Rustin Soraki and Homanga Bharadhwaj and Ali Farhadi and Roozbeh Mottaghi},
+  <span class="tok-key">year</span>={2026},
+  <span class="tok-key">eprint</span>={2601.05237},
+  <span class="tok-key">archivePrefix</span>={arXiv},
+  <span class="tok-key">primaryClass</span>={cs.CV},
+  <span class="tok-key">url</span>={https://arxiv.org/abs/2601.05237}
+}</pre>
+            </div>
         </div>
     </section>
 
@@ -1185,12 +1499,45 @@
         });
 
         // Comparison section toggle
-        document.querySelector('.comparison-header')?.addEventListener('click', function() {
-            this.classList.toggle('expanded');
+        const comparisonHeader = document.querySelector('.comparison-header');
+        comparisonHeader?.addEventListener('click', function() {
+            const expanded = this.classList.toggle('expanded');
             document.querySelector('.comparison-content').classList.toggle('show');
+            this.setAttribute('aria-expanded', expanded ? 'true' : 'false');
             // Pause videos when collapsed
-            if (!this.classList.contains('expanded')) {
+            if (!expanded) {
                 document.querySelectorAll('.comparison-content video').forEach(v => v.pause());
+            }
+        });
+
+        // Keyboard activation for the comparison toggle
+        comparisonHeader?.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.click();
+            }
+        });
+
+        // Copy BibTeX
+        document.querySelector('.bibtex-copy')?.addEventListener('click', function() {
+            const pre = this.closest('.bibtex-block').querySelector('pre');
+            const done = () => {
+                this.classList.add('copied');
+                this.innerHTML = '<i class="fas fa-check"></i> Copied';
+                clearTimeout(this._t);
+                this._t = setTimeout(() => {
+                    this.classList.remove('copied');
+                    this.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                }, 1700);
+            };
+            const text = pre.textContent.trim();
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(done).catch(() => {});
+            } else {
+                const ta = document.createElement('textarea');
+                ta.value = text; document.body.appendChild(ta); ta.select();
+                try { document.execCommand('copy'); done(); } catch (e) {}
+                document.body.removeChild(ta);
             }
         });
     </script>
