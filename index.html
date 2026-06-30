@@ -104,6 +104,7 @@
             .header > .logo       { animation-delay: 0.02s; }
             .header > .title      { animation-delay: 0.10s; }
             .header > .subtitle   { animation-delay: 0.18s; }
+            .header > .venue      { animation-delay: 0.22s; }
             .header > .authors    { animation-delay: 0.26s; }
             .header > .affiliations { animation-delay: 0.32s; }
             .header > .equal-advising { animation-delay: 0.36s; }
@@ -140,10 +141,21 @@
         }
 
         .venue {
-            font-size: 1.15rem;
-            color: var(--venue-color);
-            font-weight: 600;
-            margin-bottom: 20px;
+            margin-bottom: 22px;
+        }
+
+        .venue-pill {
+            display: inline-block;
+            padding: 6px 16px;
+            background: var(--accent-soft);
+            color: var(--accent-hover);
+            font-family: 'Hanken Grotesk', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border-radius: 999px;
+            border: 1px solid var(--border-color);
         }
 
         .authors {
@@ -621,8 +633,9 @@
                 font-size: 0.95rem;
             }
 
-            .venue {
-                font-size: 1rem;
+            .venue-pill {
+                font-size: 0.75rem;
+                padding: 5px 14px;
             }
 
             .btn {
@@ -1089,6 +1102,8 @@
         <img src="logo.png" alt="ObjectForesight Logo" class="logo">
         <h1 class="title">ObjectForesight</h1>
         <h2 class="subtitle">Predicting Future 3D Object Trajectories from Human Videos</h2>
+
+        <div class="venue"><span class="venue-pill">ECCV 2026</span></div>
 
         <div class="authors">
             <a href="mailto:rustin@cs.washington.edu">Rustin Soraki</a><sup>1</sup>,
